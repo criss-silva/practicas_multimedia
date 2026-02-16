@@ -4,10 +4,15 @@ using Microsoft.Xna.Framework.Input;
 
 namespace capybara;
 //Clase que va a crear los objetos de tipo juego, es decir el videojuego en si
+//hereda de game
+
+//funciona tal que Initialize()-> LoadContent() -> (Update()+Draw()) 
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    //añadimos al personaje a la escena
+    Texture2D capybara;
 
     public Game1()
     {
@@ -25,13 +30,16 @@ public class Game1 : Game
 
     protected override void LoadContent()
     {
+        //esto va a cargar texturas, fuentes, sonidos...
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
+        capybara = Content.Load<Texture2D>("personaje_basico"); 
     }
 
     protected override void Update(GameTime gameTime)
     {
+        //basicamente el funcionamiento 
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
@@ -42,10 +50,19 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
+        //"Dibuja" es decir representa constantemente en pantalla 
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         // TODO: Add your drawing code here
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        //todo lo que hay aquí en mitad se dibuja, tiene que tener siempre un inicio y un fin
+        _spriteBatch.Draw(capybara, new Rectangle(100,100,200,200),Color.White);
+        //queremos pintar capybara en la posición del vector y color blanco para que no se tinte
+        //normalmente se usa Texture2D, vector, color. Pero usamos rectangle para poder redimensionar el objeto
+        //si la ampliamos se va a ver borroso por lo que vamos a ver el mapping, para ello en begin usamos
+        //samplerState: SamplerState.PointClamp (cogemos los pixeles cercanos)
 
+        _spriteBatch.End();
         base.Draw(gameTime);
     }
 }
