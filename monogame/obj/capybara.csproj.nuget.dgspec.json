@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\crist\\capybara\\capybara.csproj": {}
+    "c:\\Users\\crist\\Desktop\\uni\\multimedia\\practicas\\monogame\\capybara.csproj": {}
   },
   "projects": {
-    "C:\\Users\\crist\\capybara\\capybara.csproj": {
+    "c:\\Users\\crist\\Desktop\\uni\\multimedia\\practicas\\monogame\\capybara.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\crist\\capybara\\capybara.csproj",
+        "projectUniqueName": "c:\\Users\\crist\\Desktop\\uni\\multimedia\\practicas\\monogame\\capybara.csproj",
         "projectName": "capybara",
-        "projectPath": "C:\\Users\\crist\\capybara\\capybara.csproj",
+        "projectPath": "c:\\Users\\crist\\Desktop\\uni\\multimedia\\practicas\\monogame\\capybara.csproj",
         "packagesPath": "C:\\Users\\crist\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\crist\\capybara\\obj\\",
+        "outputPath": "c:\\Users\\crist\\Desktop\\uni\\multimedia\\practicas\\monogame\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\crist\\AppData\\Roaming\\NuGet\\NuGet.Config",

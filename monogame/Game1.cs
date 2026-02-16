@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace capybara;
-
+//Clase que va a crear los objetos de tipo juego, es decir el videojuego en si
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;

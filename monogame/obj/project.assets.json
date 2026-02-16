@@ -300,11 +300,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\crist\\capybara\\capybara.csproj",
+      "projectUniqueName": "C:\\Users\\crist\\Desktop\\uni\\multimedia\\practicas\\monogame\\capybara.csproj",
       "projectName": "capybara",
-      "projectPath": "C:\\Users\\crist\\capybara\\capybara.csproj",
+      "projectPath": "C:\\Users\\crist\\Desktop\\uni\\multimedia\\practicas\\monogame\\capybara.csproj",
       "packagesPath": "C:\\Users\\crist\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\crist\\capybara\\obj\\",
+      "outputPath": "C:\\Users\\crist\\Desktop\\uni\\multimedia\\practicas\\monogame\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\crist\\AppData\\Roaming\\NuGet\\NuGet.Config",
