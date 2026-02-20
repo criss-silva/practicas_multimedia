@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>c:/Users/crist/Desktop/uni/multimedia/practicas/monogame/Content/personaje_basico.png</SourceFile>
-  <SourceTime>2026-02-16T17:10:49.3341414+01:00</SourceTime>
+  <SourceTime>2026-02-19T12:58:07.3249914+01:00</SourceTime>
   <DestFile>c:/Users/crist/Desktop/uni/multimedia/practicas/monogame/Content/bin/DesktopGL/Content/personaje_basico.xnb</DestFile>
-  <DestTime>2026-02-16T17:25:38.7345266+01:00</DestTime>
+  <DestTime>2026-02-19T12:58:55.7304678+01:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2025-10-20T16:25:32+02:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
