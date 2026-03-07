@@ -4,7 +4,7 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/pauli/Desktop/universidad/multimedia/practicas_multimedia/monogame/Content/personaje_basico.png</File>
+    <File>C:/Users/pauli/OneDrive/Desktop/universidad/multimedia/practicas_multimedia/monogame/Content/personaje_basico.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
