@@ -3,7 +3,7 @@
 [Ob]j/
 
 # Archivos de Visual Studio
-.vs/
+.vscode
 *.user
 *.suo
 *.userosscache
