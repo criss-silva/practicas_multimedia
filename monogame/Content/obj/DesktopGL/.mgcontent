@@ -4,9 +4,11 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/Users/crist/Desktop/uni/multimedia/practicas/monogame/Content/personaje_basico.png</File>
+    <File>c:/Users/crist/Desktop/uni/multimedia/practicas/monogame/Content/../../Tilemap/Tilemap/tilesheet.png</File>
+    <File>c:/Users/crist/Desktop/uni/multimedia/practicas/monogame/Content/personaje_basico.png</File>
   </SourceFiles>
   <DestFiles>
+    <File>tilesheet.png</File>
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

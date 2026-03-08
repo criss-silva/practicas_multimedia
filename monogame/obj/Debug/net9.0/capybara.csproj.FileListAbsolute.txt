@@ -33,3 +33,4 @@ c:\Users\crist\Desktop\uni\multimedia\practicas\monogame\obj\Debug\net9.0\capyba
 c:\Users\crist\Desktop\uni\multimedia\practicas\monogame\obj\Debug\net9.0\capybara.genruntimeconfig.cache
 c:\Users\crist\Desktop\uni\multimedia\practicas\monogame\obj\Debug\net9.0\ref\capybara.dll
 c:\Users\crist\Desktop\uni\multimedia\practicas\monogame\bin\Debug\net9.0\Content\personaje_basico.xnb
+C:\Users\crist\Desktop\uni\multimedia\practicas\monogame\bin\Debug\net9.0\Content\tilesheet.xnb

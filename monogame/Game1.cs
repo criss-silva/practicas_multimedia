@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,11 +15,16 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+
+    private Dictionary<Vector2, int> tilemap;
+    private List<Rectangle> texturas;
+    private Texture2D textureAtlas;
     //añadimos al personaje a la escena
     Texture2D capybara;
     //atributos esenciales para el personaje
     Vector2 position;//vamos a ir guardando su posición
     Vector2 velocity;
+    
 
     float velocidad = 4f;
     float fuerza=-8f;
@@ -35,8 +43,40 @@ public class Game1 : Game
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-    }
+        tilemap=CargarMapa("Content/tilemap.csv");
+        texturas = new()
+        {
+            new Rectangle(0,32,32,32),
+            new Rectangle(32,32,32,32),
+            new Rectangle(64,32,32,32)
+        };
 
+    }
+private Dictionary<Vector2, int> CargarMapa(string ruta)
+    {
+        Dictionary<Vector2, int> resultado = new();
+
+        StreamReader lector = new(ruta);
+        int y=0;
+        string linea;
+        while((linea=lector.ReadLine())!= null)
+        {
+            string[] objetos = linea.Split(',');
+
+            for(int x=0; x < objetos.Length; x++)
+            {
+                if(int.TryParse(objetos[x], out int valor))
+                {
+                    if (valor > 0)
+                    {
+                        resultado[new Vector2(x,y)]=valor;
+                    }
+                }
+            }
+            y++;
+        }
+        return resultado;
+    }
     protected override void Initialize()
     {
         // TODO: Add your initialization logic here
@@ -52,6 +92,7 @@ public class Game1 : Game
 
         // TODO: use this.Content to load your game content here
         capybara = Content.Load<Texture2D>("personaje_basico"); 
+        textureAtlas= Content.Load<Texture2D>("tilesheet");
     }
 
     protected override void Update(GameTime gameTime)
@@ -135,6 +176,17 @@ public class Game1 : Game
         //si la ampliamos se va a ver borroso por lo que vamos a ver el mapping, para ello en begin usamos
         //samplerState: SamplerState.PointClamp (cogemos los pixeles cercanos)
 
+        foreach (var item in tilemap)
+        {
+            Rectangle dest= new(
+                (int)item.Key.X * 64-100,
+                (int)item.Key.Y * 64-100,
+                64,
+                64
+            );
+            Rectangle src = texturas[item.Value-1];
+            _spriteBatch.Draw(textureAtlas, dest, src, Color.White);
+        }  
         _spriteBatch.End();
         base.Draw(gameTime);
     }
