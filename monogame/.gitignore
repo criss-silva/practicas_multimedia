@@ -1,0 +1,18 @@
+# Carpetas de compilación
+[Bb]in/
+[Ob]j/
+
+# Archivos de Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Archivos de MonoGame Content Builder
+**/Content/bin/
+**/Content/obj/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db

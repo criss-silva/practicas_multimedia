@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("capybara")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b63c51893d6f6ecd9900699028cf1d9197ff361c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6b6f43afc898403caac5e3037c5e15a94964fb45")]
 [assembly: System.Reflection.AssemblyProductAttribute("capybara")]
 [assembly: System.Reflection.AssemblyTitleAttribute("capybara")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
