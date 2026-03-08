@@ -17,7 +17,6 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-<<<<<<< HEAD
     private Dictionary<Vector2, int> tilemap;
     private List<Rectangle> texturas;
     private Texture2D textureAtlas;
@@ -30,11 +29,6 @@ public class Game1 : Game
 
 
     MovedSprite personaje;
-
-=======
-
-    MovedSprite personaje;
->>>>>>> dd83b561479ee07caca0c5c640da583ced24d6f5
 
     float velocidad = 4f;
     float fuerza = -8f;
@@ -99,18 +93,9 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         personaje = new MovedSprite(texturecapibara, new Vector2(400, 300), escala, velocidad); //cargamos al capibara, pasando la textura, la posicion, la escala y la velocidad
-<<<<<<< HEAD
-
-
+        textureAtlas = Content.Load<Texture2D>("tilesheet");
         // TODO: use this.Content to load your game content here
-        capybara = Content.Load<Texture2D>("personaje_basico"); 
-        textureAtlas= Content.Load<Texture2D>("tilesheet");
-
-=======
-
->>>>>>> dd83b561479ee07caca0c5c640da583ced24d6f5
-    }
-
+        capybara = Content.Load<Texture2D>("personaje_basico"); }
     protected override void Update(GameTime gameTime)
     {
 
@@ -118,12 +103,13 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
 
 
         float sueloY = GraphicsDevice.Viewport.Height;
-        personaje.Update(tecladoActual, gravedad, sueloY, saltos, teclaanterior, fuerza);
+        personaje.Update(tecladoActual, gravedad, sueloY,ref saltos, teclaanterior, fuerza);
 
 
-        //salir del jeugo
-        if (tecladoActual.IsKeyDown(Keys.Escape))
-            Exit();
+        /// ← estas líneas deben estar aquí en Game1
+    if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
+        tecladoActual.IsKeyDown(Keys.Escape))
+        Exit();
 
         // actualizacion de la tecla anterior 
         teclaanterior = tecladoActual;
@@ -159,13 +145,23 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
 
         foreach (var item in tilemap)
         {
-            Rectangle dest= new(
-                (int)item.Key.X * 64-100,
-                (int)item.Key.Y * 64-100,
-                64,
-                64
+            int columnas = 8; // ancho del mapa en tiles 
+            int filas = 4;    // alto del mapa en tiles 
+            int tileSize = 64;
+
+            int mapaAncho = columnas * tileSize;
+            int mapaAlto = filas * tileSize;
+
+            int offsetX = (GraphicsDevice.Viewport.Width - mapaAncho) / 2;
+            int offsetY = (GraphicsDevice.Viewport.Height - mapaAlto) / 2;
+
+            Rectangle dest = new(
+                (int)item.Key.X * tileSize + offsetX,
+                (int)item.Key.Y * tileSize + offsetY,
+                tileSize,
+                tileSize
             );
-            Rectangle src = texturas[item.Value-1];
+            Rectangle src = texturas[item.Value - 1];
             _spriteBatch.Draw(textureAtlas, dest, src, Color.White);
         }  
         _spriteBatch.End();
