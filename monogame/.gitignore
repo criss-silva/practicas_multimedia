@@ -1,2 +1,23 @@
+<<<<<<< HEAD
 /bin
 /obj
+=======
+# Carpetas de compilación
+[Bb]in/
+[Ob]j/
+
+# Archivos de Visual Studio
+.vscode
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Archivos de MonoGame Content Builder
+**/Content/bin/
+**/Content/obj/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+>>>>>>> dd83b561479ee07caca0c5c640da583ced24d6f5
