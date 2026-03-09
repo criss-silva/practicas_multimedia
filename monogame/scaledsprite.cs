@@ -10,16 +10,27 @@ using System.Threading.Tasks;
 namespace capybara
 {
     internal class ScaledSprite : Sprite
-    {
-        public Rectangle Rect  { //rectangulo para las colisiones
-            get
-            {
-                return new Rectangle((int)position.X, (int)position.Y, 100,200);
-            }
-          }
-        public ScaledSprite(Texture2D texture, Vector2 position, float scale) : base(texture, position)
-        {
-           
-        }
+{
+    public float scale; // necesitamos guardar la escala
+
+    public Rectangle Rect {
+    get {
+        float reduccion = 0.6f; // ← ajusta este valor (0.5 = mitad, 0.8 = casi completo)
+        int ancho = (int)(texture.Width * scale * reduccion);
+        int alto = (int)(texture.Height * scale * reduccion);
+        return new Rectangle(
+            (int)Math.Round(position.X - (ancho*1.3) / 2f),
+            (int)Math.Round(position.Y - alto / 2f),
+            ancho,
+            alto
+        );
     }
+}
+
+    public ScaledSprite(Texture2D texture, Vector2 position, float scale) 
+        : base(texture, position)
+    {
+        this.scale = scale; // ← guardar la escala
+    }
+}
 }

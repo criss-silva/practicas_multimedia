@@ -17,6 +17,8 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
+    
+
     private Dictionary<Vector2, int> tilemap;
     private List<Rectangle> texturas;
     private Texture2D textureAtlas;
@@ -26,6 +28,7 @@ public class Game1 : Game
     Vector2 position;//vamos a ir guardando su posición
     Vector2 velocity;
     
+    Texture2D pixel;
 
 
     MovedSprite personaje;
@@ -37,11 +40,13 @@ public class Game1 : Game
     KeyboardState teclaanterior; //esto es para que si mantenemos presionado la w no haga doble salto
     float escala = 2f;
 
+    List<Sprite> sprites;
+
 
 
 
     public Game1()
-    {
+    { 
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -91,11 +96,23 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
     {
         //esto va a cargar texturas, fuentes, sonidos...
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         personaje = new MovedSprite(texturecapibara, new Vector2(400, 300), escala, velocidad); //cargamos al capibara, pasando la textura, la posicion, la escala y la velocidad
         textureAtlas = Content.Load<Texture2D>("tilesheet");
         // TODO: use this.Content to load your game content here
-        capybara = Content.Load<Texture2D>("personaje_basico"); }
+        capybara = Content.Load<Texture2D>("personaje_basico"); 
+        
+        sprites= new();
+        sprites.Add(personaje);
+
+        //esto es para ver el bounding box para cuando vayamos a hacer pruebas
+        pixel = new Texture2D(GraphicsDevice, 1, 1);
+        pixel.SetData(new[] { Color.White });
+
+
+        }
     protected override void Update(GameTime gameTime)
     {
 
@@ -106,15 +123,29 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
         personaje.Update(tecladoActual, gravedad, sueloY,ref saltos, teclaanterior, fuerza);
 
 
-        /// ← estas líneas deben estar aquí en Game1
-    if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
-        tecladoActual.IsKeyDown(Keys.Escape))
-        Exit();
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
+            tecladoActual.IsKeyDown(Keys.Escape))
+            Exit();
 
-        // actualizacion de la tecla anterior 
-        teclaanterior = tecladoActual;
+        List<Sprite> killist = new();    
+        foreach (var sprite in sprites)
+            {
+                //personaje.Update();
+                if (sprite!=personaje && sprite is ScaledSprite escalado && escalado.Rect.Intersects(personaje.Rect))
+                {
+                    killist.Add(sprite);
+                    Console.Write("colision");
+                }
 
-        base.Update(gameTime);
+            }   
+        foreach (var sprite in killist)
+            {
+                sprites.Remove(sprite);
+            } 
+            // actualizacion de la tecla anterior 
+            teclaanterior = tecladoActual;
+
+            base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
@@ -137,6 +168,8 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
             personaje.efecto,
             0f
         );
+        // En Draw, después de dibujar el personaje
+        _spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f); // box rojo semitransparente
 
         //queremos pintar capybara en la posición del vector y color blanco para que no se tinte
         //normalmente se usa Texture2D, vector, color. Pero usamos rectangle para poder redimensionar el objeto
