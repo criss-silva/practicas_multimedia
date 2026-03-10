@@ -68,5 +68,40 @@ namespace capybara
 
             prevKeyboard = keyboard;
         }
+
+public void ResolverColisiones(List<Rectangle> bloques)
+{
+    foreach (var bloque in bloques)
+    {
+        if (this.Rect.Intersects(bloque))
+        {
+            Rectangle interseccion = Rectangle.Intersect(this.Rect, bloque);
+
+            // colisiones verticales
+            if (interseccion.Width > interseccion.Height)
+            {
+                if (this.position.Y < bloque.Y) 
+                {
+                    this.position.Y -= interseccion.Height;
+                    this.velocity.Y = 0; // esto lo pongo para la gravedad porque sino empuja hacia abajo y se empieza a rallar
+                    
+                }
+                else // Estamos debajo (Techo)
+                {
+                    this.position.Y += interseccion.Height;
+                    this.velocity.Y = 0;
+                }
+            }
+            //esto para las paredes
+            else
+            {
+                if (this.position.X < bloque.X) 
+                    this.position.X -= interseccion.Width;
+                else 
+                    this.position.X += interseccion.Width;
+            }
+        }
     }
+}
+}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq; // Añadido para facilitar manejo de colecciones
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,8 +17,6 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-
-    
 
     private Dictionary<Vector2, int> tilemap;
     private List<Rectangle> texturas;
@@ -42,20 +41,40 @@ public class Game1 : Game
 
     List<Sprite> sprites;
 
-
-
-
     public Game1()
     { 
         _graphics = new GraphicsDeviceManager(this);
+        _graphics.PreferredBackBufferWidth = 1280; // Ancho
+        _graphics.PreferredBackBufferHeight = 720; // Alto
+        _graphics.ApplyChanges();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        tilemap=CargarMapa("Content/tilemap.csv");
+        tilemap = CargarMapa("Content/tilemap.csv");
         texturas = new()
         {
-            new Rectangle(0,32,32,32),
-            new Rectangle(32,32,32,32),
-            new Rectangle(64,32,32,32)
+            new Rectangle(0,32,32,32), //1
+            new Rectangle(32,32,32,32),//2
+            new Rectangle(64,32,32,32),//3
+            new Rectangle(96,32,32,32),//4
+            new Rectangle(128,32,32,32),//5
+            new Rectangle(160,32,32,32),//6
+            new Rectangle(192,32,32,32),//7
+            new Rectangle(0,64,32,32),  //8
+            new Rectangle(32,64,32,32),//9
+            new Rectangle(64,64,32,32),//10
+            new Rectangle(96,64,32,32),//11
+            new Rectangle(128,64,32,32),//12
+            new Rectangle(160,64,32,32),//13
+            new Rectangle(0,96,32,32), //14
+            new Rectangle(32,96,32,32),//15
+            new Rectangle(64,96,32,32),//16
+            new Rectangle(96,96,32,32),//17
+            new Rectangle(128,96,32,32),//18
+            new Rectangle(160,96,32,32),//19
+            new Rectangle(96,128,32,32),//20
+            new Rectangle(128,128,32,32),//21
+            new Rectangle(160,128,32,32),//22
+          
         };
 
     }
@@ -115,13 +134,31 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
         }
     protected override void Update(GameTime gameTime)
     {
-
         KeyboardState tecladoActual = Keyboard.GetState();
 
-
         float sueloY = GraphicsDevice.Viewport.Height;
-        personaje.Update(tecladoActual, gravedad, sueloY,ref saltos, teclaanterior, fuerza);
+        
+      
+        personaje.Update(tecladoActual, gravedad, sueloY, ref saltos, teclaanterior, fuerza);
 
+        
+        List<Rectangle> bloquesColision = new List<Rectangle>();
+        int tileSize = 96;
+        int offsetX = 0;
+        int offsetY = 100;
+
+        foreach (var item in tilemap)
+        {
+            bloquesColision.Add(new Rectangle(
+                (int)item.Key.X * tileSize + offsetX,
+                (int)item.Key.Y * tileSize + offsetY,
+                tileSize,
+                tileSize
+            ));
+        }
+
+        //resolvemos las colisiones del personaje con los bloques de colisión
+        personaje.ResolverColisiones(bloquesColision);
 
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
             tecladoActual.IsKeyDown(Keys.Escape))
@@ -130,7 +167,6 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
         List<Sprite> killist = new();    
         foreach (var sprite in sprites)
             {
-                //personaje.Update();
                 if (sprite!=personaje && sprite is ScaledSprite escalado && escalado.Rect.Intersects(personaje.Rect))
                 {
                     killist.Add(sprite);
@@ -178,15 +214,10 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
 
         foreach (var item in tilemap)
         {
-            int columnas = 8; // ancho del mapa en tiles 
-            int filas = 4;    // alto del mapa en tiles 
-            int tileSize = 64;
-
-            int mapaAncho = columnas * tileSize;
-            int mapaAlto = filas * tileSize;
-
-            int offsetX = (GraphicsDevice.Viewport.Width - mapaAncho) / 2;
-            int offsetY = (GraphicsDevice.Viewport.Height - mapaAlto) / 2;
+            
+            int tileSize = 96;
+            int offsetX = 0;
+            int offsetY = 100;
 
             Rectangle dest = new(
                 (int)item.Key.X * tileSize + offsetX,
