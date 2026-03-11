@@ -1,36 +1,46 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
- 
- //clase para el escalado del sprite, y para creear el rectangulo para el tema de las colisiones, que se va a usar en el futuro 
+
 namespace capybara
 {
     internal class ScaledSprite : Sprite
-{
-    public float scale; // necesitamos guardar la escala
-
-    public Rectangle Rect {
-    get {
-        float reduccion = 0.6f; // ← ajusta este valor (0.5 = mitad, 0.8 = casi completo)
-        int ancho = (int)(texture.Width * scale * reduccion);
-        int alto = (int)(texture.Height * scale * reduccion);
-        return new Rectangle(
-            (int)Math.Round(position.X - (ancho*1.3) / 2f),
-            (int)Math.Round(position.Y - alto / 2f),
-            ancho,
-            alto
-        );
-    }
-}
-
-    public ScaledSprite(Texture2D texture, Vector2 position, float scale) 
-        : base(texture, position)
     {
-        this.scale = scale; // ← guardar la escala
+        public float scale;
+        
+        // Vamos a lidiar aqui con el problema de girar a la izquierda
+        public SpriteEffects efecto = SpriteEffects.None; 
+
+        // Variables para ajustar la caja manualmente 
+        public int anchoCaja = 110;  // Ancho bb (bounding box)
+        public int altoCaja = 95;   // Alto bb
+        public int offsetY = -5;    // offset para ajustar bien el suelo(positivo baja hacia abajo)
+
+        
+        //Desplazamiento X dependiendo de si es izq o dr
+        public int offsetXNormal = -15;   // Mueve la caja a la izq/der cuando mira a la derecha
+        public int offsetXFlip = 15;   // Mueve la caja a la izq/der cuando hace flip (gira a la izquierda)
+
+        public Rectangle Rect 
+        {
+            get 
+            {
+                // Decidimos qué offset X usar según el flip
+                int desplazamientoX = (efecto == SpriteEffects.FlipHorizontally) ? offsetXFlip : offsetXNormal;
+
+                return new Rectangle(
+                    (int)Math.Round(position.X - (anchoCaja / 2f)) + desplazamientoX,
+                    (int)Math.Round(position.Y - (altoCaja / 2f)) + offsetY,
+                    anchoCaja,
+                    altoCaja
+                );
+            }
+        }
+
+        public ScaledSprite(Texture2D texture, Vector2 position, float scale) 
+            : base(texture, position)
+        {
+            this.scale = scale;
+        }
     }
-}
 }

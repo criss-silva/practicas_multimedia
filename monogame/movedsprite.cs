@@ -8,10 +8,10 @@ namespace capybara
 {
     internal class MovedSprite : ScaledSprite
     {
-        public SpriteEffects efecto = SpriteEffects.None;
         private float speed;
         public new Vector2 velocity; // 'new' para evitar el warning CS0108
         private KeyboardState prevKeyboard;
+        public int saltos = 0;
         
         private float escalaX = 1f;
         private float escalaObjetivo = 1f;
@@ -24,18 +24,20 @@ namespace capybara
             this.velocity = Vector2.Zero;
         }
 
-        public void Update(KeyboardState keyboard, float gravedad, float sueloY, ref int saltos, KeyboardState teclaanterior, float fuerza)
+        public void Update(KeyboardState keyboard, float gravedad, float sueloY,  KeyboardState teclaanterior, float fuerza)
         {
             // Movimiento horizontal
             if (keyboard.IsKeyDown(Keys.D))
             {
                 velocity.X = speed;
                 escalaObjetivo = 1f;
+                efecto = SpriteEffects.None; // Mirar a la derecha
             }
             else if (keyboard.IsKeyDown(Keys.A))
             {
                 velocity.X = -speed;
                 escalaObjetivo = -1f;
+                efecto = SpriteEffects.FlipHorizontally; // Mirar a la izquierda
             }
             else
             {
@@ -44,7 +46,6 @@ namespace capybara
 
             // Flip suave
             escalaX += (escalaObjetivo - escalaX) * velocidadFlip * 0.016f;
-            efecto = velocity.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
             // Salto doble
             if (keyboard.IsKeyDown(Keys.W) && saltos < 2 && teclaanterior.IsKeyUp(Keys.W))
@@ -80,10 +81,11 @@ public void ResolverColisiones(List<Rectangle> bloques)
             // colisiones verticales
             if (interseccion.Width > interseccion.Height)
             {
-                if (this.position.Y < bloque.Y) 
+                if (this.Rect.Center.Y < bloque.Center.Y) //encima del suelo
                 {
-                    this.position.Y -= interseccion.Height;
-                    this.velocity.Y = 0; // esto lo pongo para la gravedad porque sino empuja hacia abajo y se empieza a rallar
+                    this.position.Y = bloque.Top - (this.altoCaja / 2f) - this.offsetY;
+                    this.velocity.Y = 0; 
+                    this.saltos = 0;
                     
                 }
                 else // Estamos debajo (Techo)

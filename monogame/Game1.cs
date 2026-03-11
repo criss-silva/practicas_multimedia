@@ -139,7 +139,7 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
         float sueloY = GraphicsDevice.Viewport.Height;
         
       
-        personaje.Update(tecladoActual, gravedad, sueloY, ref saltos, teclaanterior, fuerza);
+        personaje.Update(tecladoActual, gravedad, sueloY, teclaanterior, fuerza);
 
         
         List<Rectangle> bloquesColision = new List<Rectangle>();
