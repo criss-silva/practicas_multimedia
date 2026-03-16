@@ -12,14 +12,14 @@ namespace capybara
         public SpriteEffects efecto = SpriteEffects.None; 
 
         // Variables para ajustar la caja manualmente 
-        public int anchoCaja = 110;  // Ancho bb (bounding box)
-        public int altoCaja = 95;   // Alto bb
-        public int offsetY = -5;    // offset para ajustar bien el suelo(positivo baja hacia abajo)
+        public int anchoCaja = 70;  // Ancho bb (bounding box)
+        public int altoCaja = 70;   // Alto bb
+        public int offsetY = 0;    // offset para ajustar bien el suelo(positivo baja hacia abajo)
 
         
-        //Desplazamiento X dependiendo de si es izq o dr
-        public int offsetXNormal = -15;   // Mueve la caja a la izq/der cuando mira a la derecha
-        public int offsetXFlip = 15;   // Mueve la caja a la izq/der cuando hace flip (gira a la izquierda)
+        //Desplazamiento X dependiendo de si es izq o der
+        public int offsetXNormal = -10;   // Mueve la caja a la izq/der cuando mira a la derecha
+        public int offsetXFlip = 10;   // Mueve la caja a la izq/der cuando hace flip (gira a la izquierda)
 
         public Rectangle Rect 
         {

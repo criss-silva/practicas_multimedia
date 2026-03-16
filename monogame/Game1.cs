@@ -37,9 +37,11 @@ public class Game1 : Game
     float gravedad = 0.5f;
     int saltos = 0;
     KeyboardState teclaanterior; //esto es para que si mantenemos presionado la w no haga doble salto
-    float escala = 2f;
+    float escala = 1.3f;
 
     List<Sprite> sprites;
+    private List<BoxCollider> bloqueColliders = new List<BoxCollider>();
+
 
     public Game1()
     { 
@@ -74,7 +76,6 @@ public class Game1 : Game
             new Rectangle(96,128,32,32),//20
             new Rectangle(128,128,32,32),//21
             new Rectangle(160,128,32,32),//22
-          
         };
 
     }
@@ -125,7 +126,32 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
         
         sprites= new();
         sprites.Add(personaje);
+        
+        // Añadir collider del personaje
+        CollisionManager.AddCollider(personaje.Collider);
+        
+        // IDs de tiles que NO tienen colisión (decorativos)
+        List<int> tilesSinColision = new List<int> { 18 }; //por ahora solo tenemos el fondo pero por si en un futurio queremos añadir
 
+        // Crear colliders de los bloques
+        int tileSize = 60;
+        int offsetX = 0;
+        int offsetY = 0;
+
+        foreach (var item in tilemap)
+        {
+            // Solo añadir collider si el tile tiene colisión
+            if (!tilesSinColision.Contains(item.Value))
+            {
+                BoxCollider bloqueCollider = new BoxCollider(
+                    new Vector2(item.Key.X * tileSize + offsetX, item.Key.Y * tileSize + offsetY),
+                    tileSize,
+                    tileSize
+                );
+                bloqueColliders.Add(bloqueCollider);
+                CollisionManager.AddCollider(bloqueCollider);
+            }
+        }
         //esto es para ver el bounding box para cuando vayamos a hacer pruebas
         pixel = new Texture2D(GraphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
@@ -136,29 +162,21 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
     {
         KeyboardState tecladoActual = Keyboard.GetState();
 
-        float sueloY = GraphicsDevice.Viewport.Height;
+        //float sueloY = float.MaxValue;
         
-      
-        personaje.Update(tecladoActual, gravedad, sueloY, teclaanterior, fuerza);
+                
+        // 1. Actualizar collider del personaje
+        Rectangle playerRect = personaje.Rect;
+        personaje.Collider.Position = new Vector2(playerRect.X, playerRect.Y);
+        personaje.Collider.Width = playerRect.Width;
+        personaje.Collider.Height = playerRect.Height;
 
-        
-        List<Rectangle> bloquesColision = new List<Rectangle>();
-        int tileSize = 96;
-        int offsetX = 0;
-        int offsetY = 100;
+        // Actualizar manager de colisiones
+        CollisionManager.Update();
 
-        foreach (var item in tilemap)
-        {
-            bloquesColision.Add(new Rectangle(
-                (int)item.Key.X * tileSize + offsetX,
-                (int)item.Key.Y * tileSize + offsetY,
-                tileSize,
-                tileSize
-            ));
-        }
+        personaje.Update(tecladoActual, teclaanterior,gravedad, fuerza);
 
-        //resolvemos las colisiones del personaje con los bloques de colisión
-        personaje.ResolverColisiones(bloquesColision);
+
 
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
             tecladoActual.IsKeyDown(Keys.Escape))
@@ -189,10 +207,28 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
         //"Dibuja" es decir representa constantemente en pantalla 
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // TODO: Add your drawing code here
+        // TODO: Your drawing code here
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        //todo lo que hay aquí en mitad se dibuja, tiene que tener siempre un inicio y un fin
 
+        // Primero: dibujar tiles (capa de atrás)
+        foreach (var item in tilemap)
+        {
+            
+            int tileSize = 60;
+            int offsetX = 0;
+            int offsetY = 0;
+
+            Rectangle dest = new(
+                (int)item.Key.X * tileSize + offsetX,
+                (int)item.Key.Y * tileSize + offsetY,
+                tileSize,
+                tileSize
+            );
+            Rectangle src = texturas[item.Value - 1];
+            _spriteBatch.Draw(textureAtlas, dest, src, Color.White);
+        }
+
+        // Segundo: dibujar personaje (capa de adelante)
         _spriteBatch.Draw(
             personaje.texture,
             personaje.position,
@@ -204,30 +240,10 @@ private Dictionary<Vector2, int> CargarMapa(string ruta)
             personaje.efecto,
             0f
         );
-        // En Draw, después de dibujar el personaje
-        _spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f); // box rojo semitransparente
 
-        //queremos pintar capybara en la posición del vector y color blanco para que no se tinte
-        //normalmente se usa Texture2D, vector, color. Pero usamos rectangle para poder redimensionar el objeto
-        //si la ampliamos se va a ver borroso por lo que vamos a ver el mapping, para ello en begin usamos
-        //samplerState: SamplerState.PointClamp (cogemos los pixeles cercanos)
+        // Tercero: dibujar bounding box (para depuración)
+        _spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
 
-        foreach (var item in tilemap)
-        {
-            
-            int tileSize = 96;
-            int offsetX = 0;
-            int offsetY = 100;
-
-            Rectangle dest = new(
-                (int)item.Key.X * tileSize + offsetX,
-                (int)item.Key.Y * tileSize + offsetY,
-                tileSize,
-                tileSize
-            );
-            Rectangle src = texturas[item.Value - 1];
-            _spriteBatch.Draw(textureAtlas, dest, src, Color.White);
-        }  
         _spriteBatch.End();
         base.Draw(gameTime);
     }
