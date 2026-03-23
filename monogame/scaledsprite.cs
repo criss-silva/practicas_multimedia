@@ -12,9 +12,9 @@ namespace capybara
         public SpriteEffects efecto = SpriteEffects.None; 
 
         // Variables para ajustar la caja manualmente 
-        public int anchoCaja = 70;  // Ancho bb (bounding box)
-        public int altoCaja = 70;   // Alto bb
-        public int offsetY = 0;    // offset para ajustar bien el suelo(positivo baja hacia abajo)
+        public int anchoCaja = 50;  // Ancho bb (bounding box)
+        public int altoCaja = 50;   // Alto bb
+        public int offsetY = -5;    // offset para ajustar bien el suelo(positivo baja hacia abajo)
 
         
         //Desplazamiento X dependiendo de si es izq o der

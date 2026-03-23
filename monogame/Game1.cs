@@ -50,7 +50,7 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(new Color(111, 94, 132)); // verde bosque, por ejemplo;
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 

@@ -4,12 +4,12 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/juego/practicas_multimedia/monogame/Content/boton_ajustes.png</File>
-    <File>C:/juego/practicas_multimedia/monogame/Content/boton_jugar.png</File>
-    <File>C:/juego/practicas_multimedia/monogame/Content/fondo.png</File>
-    <File>C:/juego/practicas_multimedia/monogame/Content/nombre_juego.png</File>
-    <File>C:/juego/practicas_multimedia/monogame/Content/personaje_basico.png</File>
-    <File>C:/juego/practicas_multimedia/monogame/Content/tilesheet.png</File>
+    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_ajustes.png</File>
+    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_jugar.png</File>
+    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo.png</File>
+    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/nombre_juego.png</File>
+    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/personaje_basico.png</File>
+    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/tilesheet.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />

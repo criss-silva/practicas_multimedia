@@ -23,7 +23,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-  <Content Include="Content\tilemap.csv">
+  <Content Include="Content\nivel1.csv">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+</ItemGroup>
+  <ItemGroup>
+  <Content Include="Content\nivel2.csv">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </Content>
 </ItemGroup>

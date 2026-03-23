@@ -10,7 +10,7 @@ namespace capybara{
 public class SceneManager
 {
 
-    private  readonly Stack<IScene> stackescenas;
+    private  readonly Stack<IScene> stackescenas;  //stack con las escenas, iremos metiendo todos los niveles
     public SceneManager()
     {
         stackescenas = new();

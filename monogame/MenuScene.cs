@@ -75,11 +75,12 @@ public class MenuScene : IScene
         {
             if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
             {
-                GameScene juego = new GameScene(_content, _graphicsDevice);
+                GameScene juego = new GameScene(_sceneManager,_content, _graphicsDevice);
                 juego.LoadContent();
                 _sceneManager.AddScene(juego);
             }
         }
+        _mouseAnterior=mouseActual;
         
     }
 

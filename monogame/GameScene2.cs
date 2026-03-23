@@ -5,20 +5,20 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
-using System.Xml.Serialization;
-
+using System.Data.SqlTypes;
 
 namespace capybara;
 
-public class GameScene : IScene
+public class GameScene2 : IScene
 {
+    private SceneManager _sceneManager; //manejo de escenas
     private Dictionary<Vector2, int> tilemap;
     private List<Rectangle> texturas;
     private Texture2D textureAtlas;
     private MovedSprite personaje;
     private List<Sprite> sprites;
     private Texture2D pixel;
-    private SceneManager _sceneManager; //esto es para poder lanzar la escena 2
+    
     private float escala = 1.0f;
     private float velocidad = 4f;
     private float gravedad = 0.5f;
@@ -28,9 +28,9 @@ public class GameScene : IScene
     private ContentManager Content;
     private GraphicsDevice _graphicsDevice;
 
-    public GameScene(SceneManager sm, ContentManager content, GraphicsDevice gd)
+    public GameScene2(SceneManager sm, ContentManager content, GraphicsDevice gd)
     {
-        _sceneManager=sm;
+        _sceneManager= sm;
         this.Content = content;
         this._graphicsDevice = gd;
     }
@@ -38,7 +38,7 @@ public class GameScene : IScene
     public void LoadContent()
     {
        
-        tilemap = CargarMapa("Content/nivel1.csv");
+        tilemap = CargarMapa("Content/nivel2.csv");
         textureAtlas = Content.Load<Texture2D>("tilesheet");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         
@@ -78,7 +78,7 @@ public class GameScene : IScene
         int tileSize = 60;
         foreach (var item in tilemap)
         {
-            if (item.Value != 18 && item.Value != 99 && item.Value!=50) {
+            if (item.Value != 18 && item.Value!=99 && item.Value!=50) {
                 BoxCollider bloque = new BoxCollider(new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize), tileSize, tileSize);
                 CollisionManager.AddCollider(bloque);
             }
@@ -147,27 +147,27 @@ public class GameScene : IScene
     teclaanterior = tecladoActual;
 }
 
-public void Draw(SpriteBatch spriteBatch)
-{
-    int tileSize = 60;
-
-    // Dibujar Tiles (ignorar el 99, no tiene textura)
-    foreach (var item in tilemap)
+    public void Draw(SpriteBatch spriteBatch)
     {
-        if (item.Value == 99 || item.Value==50) continue;
+        int tileSize = 60;
 
-        Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
-        spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
+        // Dibujar Tiles
+        foreach (var item in tilemap)
+        {
+            if (item.Value == 99 ||item.Value==50) continue; //no tiene textura
+
+            Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
+            spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
+        }
+
+        // Dibujar Personaje
+        spriteBatch.Draw(personaje.texture, personaje.position, null, Color.White, 0f,
+            new Vector2(personaje.texture.Width / 2f, personaje.texture.Height / 2f),
+            escala, personaje.efecto, 0f);
+
+        // Dibujar Bounding Box (Debug)
+        spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
     }
-
-    // Dibujar Personaje
-    spriteBatch.Draw(personaje.texture, personaje.position, null, Color.White, 0f,
-        new Vector2(personaje.texture.Width / 2f, personaje.texture.Height / 2f),
-        escala, personaje.efecto, 0f);
-
-    // Dibujar Bounding Box (Debug)
-    spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
-}
 
     private Dictionary<Vector2, int> CargarMapa(string ruta)
     {
