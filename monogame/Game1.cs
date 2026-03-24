@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,6 +10,7 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private SceneManager sceneManager;
+    private HUD _hud;
 
     public Game1()
     { 
@@ -16,6 +18,7 @@ public class Game1 : Game
         _graphics.PreferredBackBufferWidth = 1280;
         _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
+        
         
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -30,6 +33,9 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        _hud = new HUD();              
+        _hud.LoadContent(Content);     
+
         
         // iniciamos con el menu
         MenuScene menu = new MenuScene(sceneManager, Content, GraphicsDevice);
@@ -56,6 +62,7 @@ public class Game1 : Game
 
         // dibujamos la escena que haya en ese momento
         sceneManager.sceneaActual()?.Draw(_spriteBatch);
+        _hud.Draw(_spriteBatch); 
 
         _spriteBatch.End();
         base.Draw(gameTime);

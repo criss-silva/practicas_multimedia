@@ -33,6 +33,10 @@ public class GameScene : IScene
         _sceneManager=sm;
         this.Content = content;
         this._graphicsDevice = gd;
+
+        // Suscribirse a los eventos de vidas
+        VidaManager.OnPerderVida += Respawn;
+        VidaManager.OnGameOver += GameOver;
     }
 
     public void LoadContent()
@@ -113,19 +117,19 @@ public class GameScene : IScene
     int tileSize = 60;
     foreach (var item in tilemap)
     {
-         if (item.Value == 50)
-    {
-        Rectangle tileKill = new Rectangle(
-            (int)item.Key.X * tileSize,
-            (int)item.Key.Y * tileSize,
-            tileSize, tileSize);
+        if (item.Value == 50)
+{
+    Rectangle tileKill = new Rectangle(
+        (int)item.Key.X * tileSize,
+        (int)item.Key.Y * tileSize,
+        tileSize, tileSize);
 
-        if (personaje.Rect.Intersects(tileKill))
-        {
-            personaje.position = new Vector2(100, 90);
-            break;
-        }
+    if (personaje.Rect.Intersects(tileKill))
+    {
+        VidaManager.PerderVida(); // accedemos al evento diseñado en otros archivos
+        break;
     }
+}
         if (item.Value == 99)
         {
             Rectangle tileMeta = new Rectangle(
@@ -188,4 +192,21 @@ public void Draw(SpriteBatch spriteBatch)
         }
         return resultado;
     }
+    private void Respawn()
+{
+    personaje.position = new Vector2(100, 90);
+    personaje.velocity = Vector2.Zero; // para que no siga con inercia
+}
+
+private void GameOver()
+{
+    // Desuscribirse para no dejar eventos colgados
+    VidaManager.OnPerderVida -= Respawn;
+    VidaManager.OnGameOver -= GameOver;
+
+    CollisionManager.Clear();
+    GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
+    gameOver.LoadContent();
+    _sceneManager.AddScene(gameOver);
+}
 }
