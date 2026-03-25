@@ -30,7 +30,7 @@ public class GameScene : IScene
 
     public GameScene(SceneManager sm, ContentManager content, GraphicsDevice gd)
     {
-        _sceneManager=sm;
+        _sceneManager = sm;
         this.Content = content;
         this._graphicsDevice = gd;
 
@@ -41,16 +41,16 @@ public class GameScene : IScene
 
     public void LoadContent()
     {
-       
+
         tilemap = CargarMapa("Content/nivel1.csv");
         textureAtlas = Content.Load<Texture2D>("tilesheet");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
-        
-     
-        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad);
+        Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
+        Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja"); 
+        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida);
         sprites = new List<Sprite> { personaje };
-        
-       
+
+
         CollisionManager.AddCollider(personaje.Collider);
         texturas = new()
         {
@@ -78,100 +78,121 @@ public class GameScene : IScene
             new Rectangle(160,128,32,32) //22
         };
 
-       
+
         int tileSize = 60;
         foreach (var item in tilemap)
         {
-            if (item.Value != 18 && item.Value != 99 && item.Value!=50) {
+            if (item.Value != 18 && item.Value != 99 && item.Value != 50)
+            {
                 BoxCollider bloque = new BoxCollider(new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize), tileSize, tileSize);
                 CollisionManager.AddCollider(bloque);
             }
         }
 
-        
+
         pixel = new Texture2D(_graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
     }
 
     public void Update(GameTime gameTime)
-{
-    KeyboardState tecladoActual = Keyboard.GetState();
-
-    Rectangle playerRect = personaje.Rect;
-    personaje.Collider.Position = new Vector2(playerRect.X, playerRect.Y);
-    personaje.Collider.Width = playerRect.Width;
-    personaje.Collider.Height = playerRect.Height;
-
-    CollisionManager.Update();
-    personaje.Update(tecladoActual, teclaanterior, gravedad, fuerza);
-
-    List<Sprite> killist = new();    
-    foreach (var sprite in sprites)
     {
-        if (sprite != personaje && sprite is ScaledSprite escalado && escalado.Rect.Intersects(personaje.Rect))
-            killist.Add(sprite);
-    }   
-    foreach (var sprite in killist) sprites.Remove(sprite);
+        KeyboardState tecladoActual = Keyboard.GetState();
 
-    // Comprobar si el personaje toca un tile 99 (meta -> nivel 2)
-    int tileSize = 60;
-    foreach (var item in tilemap)
-    {
-        if (item.Value == 50)
-{
-    Rectangle tileKill = new Rectangle(
-        (int)item.Key.X * tileSize,
-        (int)item.Key.Y * tileSize,
-        tileSize, tileSize);
+        Rectangle playerRect = personaje.Rect;
+        personaje.Collider.Position = new Vector2(playerRect.X, playerRect.Y);
+        personaje.Collider.Width = playerRect.Width;
+        personaje.Collider.Height = playerRect.Height;
 
-    if (personaje.Rect.Intersects(tileKill))
-    {
-        VidaManager.PerderVida(); // accedemos al evento diseñado en otros archivos
-        break;
-    }
-}
-        if (item.Value == 99)
+        CollisionManager.Update();
+        personaje.Update(tecladoActual, teclaanterior, gravedad, fuerza, gameTime); // Añadido gameTime
+
+        List<Sprite> killist = new();
+        foreach (var sprite in sprites)
         {
-            Rectangle tileMeta = new Rectangle(
-                (int)item.Key.X * tileSize,
-                (int)item.Key.Y * tileSize,
-                tileSize, tileSize);
+            if (sprite != personaje && sprite is ScaledSprite escalado && escalado.Rect.Intersects(personaje.Rect))
+                killist.Add(sprite);
+        }
+        foreach (var sprite in killist) sprites.Remove(sprite);
 
-            if (personaje.Rect.Intersects(tileMeta))
+        // Comprobar si el personaje toca un tile 99 (meta -> nivel 2)
+        int tileSize = 60;
+        foreach (var item in tilemap)
+        {
+            if (item.Value == 50)
             {
-                CollisionManager.Clear();
-                GameScene2 nivel2 = new GameScene2(_sceneManager, Content, _graphicsDevice);
-                nivel2.LoadContent();
-                _sceneManager.AddScene(nivel2);
-                return; // salir para no seguir procesando este frame
+                Rectangle tileKill = new Rectangle(
+                    (int)item.Key.X * tileSize,
+                    (int)item.Key.Y * tileSize,
+                    tileSize, tileSize);
+
+                if (personaje.Rect.Intersects(tileKill))
+                {
+                    VidaManager.PerderVida(); // accedemos al evento diseñado en otros archivos
+                    break;
+                }
+            }
+            if (item.Value == 99)
+            {
+                Rectangle tileMeta = new Rectangle(
+                    (int)item.Key.X * tileSize,
+                    (int)item.Key.Y * tileSize,
+                    tileSize, tileSize);
+
+                if (personaje.Rect.Intersects(tileMeta))
+                {
+                    CollisionManager.Clear();
+                    GameScene2 nivel2 = new GameScene2(_sceneManager, Content, _graphicsDevice);
+                    nivel2.LoadContent();
+                    _sceneManager.AddScene(nivel2);
+                    return; // salir para no seguir procesando este frame
+                }
             }
         }
+
+        teclaanterior = tecladoActual;
     }
 
-    teclaanterior = tecladoActual;
-}
-
-public void Draw(SpriteBatch spriteBatch)
-{
-    int tileSize = 60;
-
-    // Dibujar Tiles (ignorar el 99, no tiene textura)
-    foreach (var item in tilemap)
+    public void Draw(SpriteBatch spriteBatch)
     {
-        if (item.Value == 99 || item.Value==50) continue;
+        int tileSize = 60;
 
-        Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
-        spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
+        // Dibujar Tiles (ignorar el 99, no tiene textura)
+        foreach (var item in tilemap)
+        {
+            if (item.Value == 99 || item.Value == 50) continue;
+
+            Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
+            spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
+        }
+
+        // Dibujar Personaje
+        if (personaje.EnEstadoS || personaje.SaliendoDeS)
+    {
+        Texture2D texAUsar = personaje.EnEstadoS ? personaje.TexEspecial : personaje.TexSalida;
+        int totalFrames = personaje.EnEstadoS ? personaje.TotalFramesS : personaje.TotalFramesSalida;
+
+       
+        int anchoFrame = texAUsar.Width / totalFrames;
+        int altoFrame = texAUsar.Height;
+        Rectangle fuente = new Rectangle(personaje.FrameActualS * anchoFrame, 0, anchoFrame, altoFrame);
+        float escalaAjustadaX = (float)personaje.texture.Width / anchoFrame;
+        float escalaAjustadaY = (float)personaje.texture.Height / altoFrame;
+        Vector2 escalaFinal = new Vector2(escalaAjustadaX * escala, escalaAjustadaY * escala);
+
+        Vector2 origen = new Vector2(anchoFrame / 2f, altoFrame / 2f);
+
+        spriteBatch.Draw(texAUsar, personaje.position, fuente, Color.White, 0f, origen, escalaFinal, personaje.efecto, 0f);
     }
+        else
+        {
+            spriteBatch.Draw(personaje.texture, personaje.position, null, Color.White, 0f,
+                new Vector2(personaje.texture.Width / 2f, personaje.texture.Height / 2f),
+                escala, personaje.efecto, 0f);
+        }
 
-    // Dibujar Personaje
-    spriteBatch.Draw(personaje.texture, personaje.position, null, Color.White, 0f,
-        new Vector2(personaje.texture.Width / 2f, personaje.texture.Height / 2f),
-        escala, personaje.efecto, 0f);
-
-    // Dibujar Bounding Box (Debug)
-    spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
-}
+        // Dibujar Bounding Box (Debug)
+        spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
+    }
 
     private Dictionary<Vector2, int> CargarMapa(string ruta)
     {
@@ -193,20 +214,20 @@ public void Draw(SpriteBatch spriteBatch)
         return resultado;
     }
     private void Respawn()
-{
-    personaje.position = new Vector2(100, 90);
-    personaje.velocity = Vector2.Zero; // para que no siga con inercia
-}
+    {
+        personaje.position = new Vector2(100, 90);
+        personaje.velocity = Vector2.Zero; // para que no siga con inercia
+    }
 
-private void GameOver()
-{
-    // Desuscribirse para no dejar eventos colgados
-    VidaManager.OnPerderVida -= Respawn;
-    VidaManager.OnGameOver -= GameOver;
+    private void GameOver()
+    {
+        // Desuscribirse para no dejar eventos colgados
+        VidaManager.OnPerderVida -= Respawn;
+        VidaManager.OnGameOver -= GameOver;
 
-    CollisionManager.Clear();
-    GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
-    gameOver.LoadContent();
-    _sceneManager.AddScene(gameOver);
-}
+        CollisionManager.Clear();
+        GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
+        gameOver.LoadContent();
+        _sceneManager.AddScene(gameOver);
+    }
 }

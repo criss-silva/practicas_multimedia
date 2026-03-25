@@ -62,9 +62,9 @@ private void GameOver()
         tilemap = CargarMapa("Content/nivel2.csv");
         textureAtlas = Content.Load<Texture2D>("tilesheet");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
-        
-     
-        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad);
+        Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
+        Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja"); 
+        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida);
         sprites = new List<Sprite> { personaje };
         
        
@@ -99,7 +99,7 @@ private void GameOver()
         int tileSize = 60;
         foreach (var item in tilemap)
         {
-            if (item.Value != 18 && item.Value!=99 && item.Value!=50) {
+            if (item.Value != 18 && item.Value!=99 && item.Value!=50 && item.Value!=100){ // 18 es el tile de colision, 99 la meta, 50 el tile de muerte y 100 el tile de victoria
                 BoxCollider bloque = new BoxCollider(new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize), tileSize, tileSize);
                 CollisionManager.AddCollider(bloque);
             }
@@ -120,7 +120,7 @@ private void GameOver()
     personaje.Collider.Height = playerRect.Height;
 
     CollisionManager.Update();
-    personaje.Update(tecladoActual, teclaanterior, gravedad, fuerza);
+    personaje.Update(tecladoActual, teclaanterior, gravedad, fuerza, gameTime); 
 
     List<Sprite> killist = new();    
     foreach (var sprite in sprites)
@@ -163,6 +163,27 @@ private void GameOver()
                 return; // salir para no seguir procesando este frame
             }
         }
+        if (item.Value == 100) // 100 para ganar 
+    {
+        Rectangle tileWin = new Rectangle(
+            (int)item.Key.X * 60,
+            (int)item.Key.Y * 60,
+            60, 60);
+
+        if (personaje.Rect.Intersects(tileWin))
+        {
+            CollisionManager.Clear();
+            // esto es para evitar que sigan las vidas colgadas al ganar 
+            VidaManager.OnPerderVida -= Respawn;
+            VidaManager.OnGameOver -= GameOver;
+
+            WinScene victoria = new WinScene(_sceneManager, Content, _graphicsDevice);
+            victoria.LoadContent();
+            _sceneManager.AddScene(victoria);
+            return; 
+        }
+    }
+
     }
 
     teclaanterior = tecladoActual;
@@ -175,16 +196,37 @@ private void GameOver()
         // Dibujar Tiles
         foreach (var item in tilemap)
         {
-            if (item.Value == 99 ||item.Value==50) continue; //no tiene textura
+            if (item.Value == 99 ||item.Value==50||item.Value==100) continue; //no tiene textura
 
             Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
 
         // Dibujar Personaje
-        spriteBatch.Draw(personaje.texture, personaje.position, null, Color.White, 0f,
-            new Vector2(personaje.texture.Width / 2f, personaje.texture.Height / 2f),
-            escala, personaje.efecto, 0f);
+        if (personaje.EnEstadoS || personaje.SaliendoDeS)
+    {
+        Texture2D texAUsar = personaje.EnEstadoS ? personaje.TexEspecial : personaje.TexSalida;
+        int totalFrames = personaje.EnEstadoS ? personaje.TotalFramesS : personaje.TotalFramesSalida;
+
+        int anchoFrame = texAUsar.Width / totalFrames;
+        int altoFrame = texAUsar.Height;
+        Rectangle fuente = new Rectangle(personaje.FrameActualS * anchoFrame, 0, anchoFrame, altoFrame);
+
+        float escalaAjustadaX = (float)personaje.texture.Width / anchoFrame;
+        float escalaAjustadaY = (float)personaje.texture.Height / altoFrame;
+    
+        Vector2 escalaFinal = new Vector2(escalaAjustadaX * escala, escalaAjustadaY * escala);
+
+        Vector2 origen = new Vector2(anchoFrame / 2f, altoFrame / 2f);
+
+        spriteBatch.Draw(texAUsar, personaje.position, fuente, Color.White, 0f, origen, escalaFinal, personaje.efecto, 0f);
+    }
+        else
+        {
+            spriteBatch.Draw(personaje.texture, personaje.position, null, Color.White, 0f,
+                new Vector2(personaje.texture.Width / 2f, personaje.texture.Height / 2f),
+                escala, personaje.efecto, 0f);
+        }
 
         // Dibujar Bounding Box (Debug)
         spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);

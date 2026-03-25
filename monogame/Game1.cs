@@ -59,7 +59,7 @@ public class Game1 : Game
         GraphicsDevice.Clear(new Color(111, 94, 132)); // verde bosque, por ejemplo;
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
+            
         // dibujamos la escena que haya en ese momento
         sceneManager.sceneaActual()?.Draw(_spriteBatch);
         _hud.Draw(_spriteBatch); 

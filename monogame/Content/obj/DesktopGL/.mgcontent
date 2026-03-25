@@ -4,17 +4,29 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/1vida.png</File>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/2vidas.png</File>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_ajustes.png</File>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_jugar.png</File>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo.png</File>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/nombre_juego.png</File>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/personaje_basico.png</File>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/tilesheet.png</File>
-    <File>c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/vidas.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/1vida.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/2vidas.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/animacion_burbuja.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/animacion_ganar.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/animacion_perder.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/animacion_romper_burbuja.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/boton_ajustes.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/boton_jugar.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/boton_menu.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/boton_restart.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/fondo.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/nombre_juego.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/personaje_basico.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/tilesheet.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/vidas.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

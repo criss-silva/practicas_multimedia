@@ -1,2 +1,2 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/1vida.png","c:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/bin/DesktopGL/1vida.xnb","TextureProcessor","Texture2DContent",838,16469,0,0856318
+"c:/juego/practicas_multimedia/monogame/Content/animacion_romper_burbuja.png","c:/juego/practicas_multimedia/monogame/Content/bin/DesktopGL/animacion_romper_burbuja.xnb","TextureProcessor","Texture2DContent",550392,112000085,1,3244729
