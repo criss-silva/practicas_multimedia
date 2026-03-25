@@ -87,7 +87,7 @@ namespace capybara
             {
                 velocity.X = 0;
                 _timerAnimacion += dt;
-                if (_timerAnimacion >= 0.08f) 
+                if (_timerAnimacion >= 0.088f) 
                 {
                     FrameActualS++;
                     _timerAnimacion = 0f;
