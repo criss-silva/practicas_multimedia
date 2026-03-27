@@ -54,17 +54,22 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
-    protected override void Draw(GameTime gameTime)
+protected override void Draw(GameTime gameTime)
+{
+    GraphicsDevice.Clear(new Color(111, 94, 132));
+
+    _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        
+    sceneManager.sceneaActual()?.Draw(_spriteBatch);
+
+    // Solo dibujar el HUD en escenas de juego no en el resto
+    IScene escenaActual = sceneManager.sceneaActual();
+    if (escenaActual is GameScene || escenaActual is GameScene2)
     {
-        GraphicsDevice.Clear(new Color(111, 94, 132)); // verde bosque, por ejemplo;
-
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            
-        // dibujamos la escena que haya en ese momento
-        sceneManager.sceneaActual()?.Draw(_spriteBatch);
-        _hud.Draw(_spriteBatch); 
-
-        _spriteBatch.End();
-        base.Draw(gameTime);
+        _hud.Draw(_spriteBatch);
     }
+
+    _spriteBatch.End();
+    base.Draw(gameTime);
+}
 }
