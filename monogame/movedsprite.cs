@@ -70,7 +70,7 @@ namespace capybara
                     _timerAnimacion = 0f;
                 }
 
-                if (_timerS >= 5f) 
+                if (_timerS >= 3f) 
                 {
                     EnEstadoS = false;
                     SaliendoDeS = true; 

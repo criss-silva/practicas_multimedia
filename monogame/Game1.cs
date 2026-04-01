@@ -38,9 +38,9 @@ public class Game1 : Game
 
         
         // iniciamos con el menu
-        MenuScene menu = new MenuScene(sceneManager, Content, GraphicsDevice);
-        menu.LoadContent();
-        sceneManager.AddScene(menu);
+       GameScene3 nivelPrueba = new GameScene3(sceneManager, Content, GraphicsDevice);
+    nivelPrueba.LoadContent();
+    sceneManager.AddScene(nivelPrueba);
     }
 
     protected override void Update(GameTime gameTime)
