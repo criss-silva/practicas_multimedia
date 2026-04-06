@@ -7,93 +7,172 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using System.Xml.Serialization;
 
-
 namespace capybara;
 
+/// <summary>
+/// Primera escena de juego jugable. Carga y gestiona el nivel 1 a partir
+/// de su archivo CSV, controla al personaje, detecta colisiones con tiles
+/// especiales y gestiona las transiciones al nivel 2 o a la pantalla de
+/// game over según el estado del <see cref="VidaManager"/>.
+/// Implementa <see cref="IScene"/> para integrarse con el <see cref="SceneManager"/>.
+/// </summary>
 public class GameScene : IScene
 {
+    /// <summary>
+    /// Diccionario que representa el tilemap del nivel. La clave es la posición
+    /// del tile en coordenadas de cuadrícula (columna, fila) y el valor es el
+    /// identificador numérico del tile en el tilesheet.
+    /// </summary>
     private Dictionary<Vector2, int> tilemap;
+
+    /// <summary>
+    /// Lista de rectángulos fuente que mapean cada identificador de tile
+    /// a su posición correspondiente dentro del <see cref="textureAtlas"/>.
+    /// El índice de la lista equivale al valor del tile menos 1.
+    /// </summary>
     private List<Rectangle> texturas;
+
+    /// <summary>Textura atlas (tilesheet) que contiene todos los sprites de tiles del nivel.</summary>
     private Texture2D textureAtlas;
+
+    /// <summary>Sprite del jugador con físicas y animaciones integradas.</summary>
     private MovedSprite personaje;
+
+    /// <summary>
+    /// Lista de sprites activos en la escena, excluyendo al personaje.
+    /// Se usa para gestionar elementos adicionales como coleccionables o decoraciones dinámicas.
+    /// </summary>
     private List<Sprite> sprites;
+
+    /// <summary>
+    /// Textura de 1×1 píxel blanco usada para dibujar rectángulos de depuración
+    /// (bounding boxes) mediante escalado del rectángulo destino.
+    /// </summary>
     private Texture2D pixel;
-    private SceneManager _sceneManager; //esto es para poder lanzar la escena 2
+
+    /// <summary>Referencia al gestor de escenas para poder apilar nuevas escenas.</summary>
+    private SceneManager _sceneManager;
+
+    /// <summary>Factor de escala visual aplicado al sprite del personaje.</summary>
     private float escala = 1.0f;
+
+    /// <summary>Velocidad de desplazamiento horizontal del personaje en píxeles por frame.</summary>
     private float velocidad = 4f;
+
+    /// <summary>Aceleración gravitacional aplicada al personaje cada frame en píxeles por frame².</summary>
     private float gravedad = 0.5f;
+
+    /// <summary>Fuerza de salto inicial del personaje (negativa porque Y crece hacia abajo).</summary>
     private float fuerza = -8f;
+
+    /// <summary>Estado del teclado en el frame anterior, necesario para detectar pulsaciones únicas.</summary>
     private KeyboardState teclaanterior;
 
+    /// <summary>Gestor de contenido usado para cargar texturas del nivel.</summary>
     private ContentManager Content;
+
+    /// <summary>Dispositivo gráfico necesario para crear texturas procedurales.</summary>
     private GraphicsDevice _graphicsDevice;
 
+    /// <summary>
+    /// Inicializa una nueva instancia de <see cref="GameScene"/>.
+    /// Se suscribe a los eventos de <see cref="VidaManager"/> para reaccionar
+    /// ante la pérdida de vida (respawn) y el game over.
+    /// </summary>
+    /// <param name="sm">Gestor de escenas del juego.</param>
+    /// <param name="content">Gestor de contenido para la carga de assets.</param>
+    /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
     public GameScene(SceneManager sm, ContentManager content, GraphicsDevice gd)
     {
         _sceneManager = sm;
         this.Content = content;
         this._graphicsDevice = gd;
 
-        // Suscribirse a los eventos de vidas
         VidaManager.OnPerderVida += Respawn;
         VidaManager.OnGameOver += GameOver;
     }
 
+    /// <summary>
+    /// Carga todos los recursos del nivel 1: tilemap desde CSV, tilesheet,
+    /// sprites del personaje y sus animaciones. Registra los colisionadores
+    /// del personaje y de todos los tiles sólidos en el <see cref="CollisionManager"/>.
+    /// <para>
+    /// Tiles excluidos de la generación de colisionadores:
+    /// <list type="bullet">
+    ///   <item><description>18 — tile decorativo sin colisión física.</description></item>
+    ///   <item><description>99 — tile de meta (trigger de transición al nivel 2).</description></item>
+    ///   <item><description>50 — tile de muerte (trigger de pérdida de vida).</description></item>
+    /// </list>
+    /// </para>
+    /// </summary>
     public void LoadContent()
     {
-
         tilemap = CargarMapa("Content/nivel1.csv");
         textureAtlas = Content.Load<Texture2D>("tilesheet");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
-        Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja"); 
+        Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
         personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida);
         sprites = new List<Sprite> { personaje };
 
-
         CollisionManager.AddCollider(personaje.Collider);
+        personaje.Collider.Owner = "player";
+
         texturas = new()
         {
-            new Rectangle(0,32,32,32), //1
-             new Rectangle(32,32,32,32),  //2
-             new Rectangle(64,32,32,32), //3
-            new Rectangle(96,32,32,32), //4
-            new Rectangle(128,32,32,32), //5
-            new Rectangle(160,32,32,32), //6
-            new Rectangle(192,32,32,32), //7
-            new Rectangle(0,64,32,32),  //8
-            new Rectangle(32,64,32,32), //9
-            new Rectangle(64,64,32,32), //10
-            new Rectangle(96,64,32,32), //11
-            new Rectangle(128,64,32,32), //12
-            new Rectangle(160,64,32,32), //13
-            new Rectangle(0,96,32,32),  //14
-            new Rectangle(32,96,32,32), //15
-            new Rectangle(64,96,32,32), //16
-            new Rectangle(96,96,32,32), //17
-            new Rectangle(128,96,32,32), //18
-            new Rectangle(160,96,32,32), //19
-            new Rectangle(96,128,32,32), //20
+            new Rectangle(0,32,32,32),    //1
+            new Rectangle(32,32,32,32),   //2
+            new Rectangle(64,32,32,32),   //3
+            new Rectangle(96,32,32,32),   //4
+            new Rectangle(128,32,32,32),  //5
+            new Rectangle(160,32,32,32),  //6
+            new Rectangle(192,32,32,32),  //7
+            new Rectangle(0,64,32,32),    //8
+            new Rectangle(32,64,32,32),   //9
+            new Rectangle(64,64,32,32),   //10
+            new Rectangle(96,64,32,32),   //11
+            new Rectangle(128,64,32,32),  //12
+            new Rectangle(160,64,32,32),  //13
+            new Rectangle(0,96,32,32),    //14
+            new Rectangle(32,96,32,32),   //15
+            new Rectangle(64,96,32,32),   //16
+            new Rectangle(96,96,32,32),   //17
+            new Rectangle(128,96,32,32),  //18
+            new Rectangle(160,96,32,32),  //19
+            new Rectangle(96,128,32,32),  //20
             new Rectangle(128,128,32,32), //21
-            new Rectangle(160,128,32,32) //22
+            new Rectangle(160,128,32,32)  //22
         };
-
 
         int tileSize = 60;
         foreach (var item in tilemap)
         {
             if (item.Value != 18 && item.Value != 99 && item.Value != 50)
             {
-                BoxCollider bloque = new BoxCollider(new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize), tileSize, tileSize);
+                BoxCollider bloque = new BoxCollider(
+                    new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize),
+                    tileSize, tileSize);
                 CollisionManager.AddCollider(bloque);
             }
         }
-
 
         pixel = new Texture2D(_graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
     }
 
+    /// <summary>
+    /// Actualiza la lógica del nivel cada frame: sincroniza el colisionador del
+    /// personaje con su posición visual, actualiza el <see cref="CollisionManager"/>,
+    /// procesa la entrada del jugador y comprueba colisiones con tiles especiales.
+    /// <para>
+    /// Tiles especiales gestionados:
+    /// <list type="bullet">
+    ///   <item><description>50 — al tocarlo se invoca <see cref="VidaManager.PerderVida"/>.</description></item>
+    ///   <item><description>99 — al tocarlo se limpia el <see cref="CollisionManager"/> y se carga <see cref="GameScene2"/>.</description></item>
+    /// </list>
+    /// </para>
+    /// </summary>
+    /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     public void Update(GameTime gameTime)
     {
         KeyboardState tecladoActual = Keyboard.GetState();
@@ -104,7 +183,7 @@ public class GameScene : IScene
         personaje.Collider.Height = playerRect.Height;
 
         CollisionManager.Update();
-        personaje.Update(tecladoActual, teclaanterior, gravedad, fuerza, gameTime); // Añadido gameTime
+        personaje.Update(tecladoActual, teclaanterior, gravedad, fuerza, gameTime);
 
         List<Sprite> killist = new();
         foreach (var sprite in sprites)
@@ -114,7 +193,6 @@ public class GameScene : IScene
         }
         foreach (var sprite in killist) sprites.Remove(sprite);
 
-        // Comprobar si el personaje toca un tile 99 (meta -> nivel 2)
         int tileSize = 60;
         foreach (var item in tilemap)
         {
@@ -127,10 +205,11 @@ public class GameScene : IScene
 
                 if (personaje.Rect.Intersects(tileKill))
                 {
-                    VidaManager.PerderVida(); // accedemos al evento diseñado en otros archivos
+                    VidaManager.PerderVida();
                     break;
                 }
             }
+
             if (item.Value == 99)
             {
                 Rectangle tileMeta = new Rectangle(
@@ -144,7 +223,7 @@ public class GameScene : IScene
                     GameScene2 nivel2 = new GameScene2(_sceneManager, Content, _graphicsDevice);
                     nivel2.LoadContent();
                     _sceneManager.AddScene(nivel2);
-                    return; // salir para no seguir procesando este frame
+                    return;
                 }
             }
         }
@@ -152,11 +231,17 @@ public class GameScene : IScene
         teclaanterior = tecladoActual;
     }
 
+    /// <summary>
+    /// Dibuja todos los elementos visuales del nivel en el orden correcto:
+    /// primero los tiles del tilemap (omitiendo los tiles especiales sin textura),
+    /// luego el personaje con su animación activa (normal, burbuja o salida de burbuja)
+    /// y finalmente el bounding box de depuración en rojo semitransparente.
+    /// </summary>
+    /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
     public void Draw(SpriteBatch spriteBatch)
     {
         int tileSize = 60;
 
-        // Dibujar Tiles (ignorar el 99, no tiene textura)
         foreach (var item in tilemap)
         {
             if (item.Value == 99 || item.Value == 50) continue;
@@ -165,24 +250,21 @@ public class GameScene : IScene
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
 
-        // Dibujar Personaje
         if (personaje.EnEstadoS || personaje.SaliendoDeS)
-    {
-        Texture2D texAUsar = personaje.EnEstadoS ? personaje.TexEspecial : personaje.TexSalida;
-        int totalFrames = personaje.EnEstadoS ? personaje.TotalFramesS : personaje.TotalFramesSalida;
+        {
+            Texture2D texAUsar = personaje.EnEstadoS ? personaje.TexEspecial : personaje.TexSalida;
+            int totalFrames = personaje.EnEstadoS ? personaje.TotalFramesS : personaje.TotalFramesSalida;
 
-       
-        int anchoFrame = texAUsar.Width / totalFrames;
-        int altoFrame = texAUsar.Height;
-        Rectangle fuente = new Rectangle(personaje.FrameActualS * anchoFrame, 0, anchoFrame, altoFrame);
-        float escalaAjustadaX = (float)personaje.texture.Width / anchoFrame;
-        float escalaAjustadaY = (float)personaje.texture.Height / altoFrame;
-        Vector2 escalaFinal = new Vector2(escalaAjustadaX * escala, escalaAjustadaY * escala);
+            int anchoFrame = texAUsar.Width / totalFrames;
+            int altoFrame = texAUsar.Height;
+            Rectangle fuente = new Rectangle(personaje.FrameActualS * anchoFrame, 0, anchoFrame, altoFrame);
+            float escalaAjustadaX = (float)personaje.texture.Width / anchoFrame;
+            float escalaAjustadaY = (float)personaje.texture.Height / altoFrame;
+            Vector2 escalaFinal = new Vector2(escalaAjustadaX * escala, escalaAjustadaY * escala);
+            Vector2 origen = new Vector2(anchoFrame / 2f, altoFrame / 2f);
 
-        Vector2 origen = new Vector2(anchoFrame / 2f, altoFrame / 2f);
-
-        spriteBatch.Draw(texAUsar, personaje.position, fuente, Color.White, 0f, origen, escalaFinal, personaje.efecto, 0f);
-    }
+            spriteBatch.Draw(texAUsar, personaje.position, fuente, Color.White, 0f, origen, escalaFinal, personaje.efecto, 0f);
+        }
         else
         {
             spriteBatch.Draw(personaje.texture, personaje.position, null, Color.White, 0f,
@@ -190,10 +272,20 @@ public class GameScene : IScene
                 escala, personaje.efecto, 0f);
         }
 
-        // Dibujar Bounding Box (Debug)
         spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
     }
 
+    /// <summary>
+    /// Lee un archivo CSV de tilemap y lo convierte en un diccionario de tiles.
+    /// Cada fila del CSV corresponde a una fila de tiles y cada valor separado
+    /// por coma a una columna. Solo se almacenan los tiles con valor mayor que 0.
+    /// </summary>
+    /// <param name="ruta">Ruta relativa al archivo CSV del nivel (p. ej. "Content/nivel1.csv").</param>
+    /// <returns>
+    /// Diccionario donde la clave es la posición en cuadrícula <c>(columna, fila)</c>
+    /// y el valor es el identificador numérico del tile. Devuelve un diccionario
+    /// vacío si el archivo no existe.
+    /// </returns>
     private Dictionary<Vector2, int> CargarMapa(string ruta)
     {
         Dictionary<Vector2, int> resultado = new();
@@ -213,15 +305,26 @@ public class GameScene : IScene
         }
         return resultado;
     }
+
+    /// <summary>
+    /// Callback suscrito a <see cref="VidaManager.OnPerderVida"/>.
+    /// Reposiciona al personaje en el punto de spawn inicial del nivel
+    /// y anula su velocidad para evitar que continúe con la inercia anterior.
+    /// </summary>
     private void Respawn()
     {
         personaje.position = new Vector2(100, 90);
-        personaje.velocity = Vector2.Zero; // para que no siga con inercia
+        personaje.velocity = Vector2.Zero;
     }
 
+    /// <summary>
+    /// Callback suscrito a <see cref="VidaManager.OnGameOver"/>.
+    /// Se desuscribe de ambos eventos del <see cref="VidaManager"/> para evitar
+    /// referencias colgadas, limpia el <see cref="CollisionManager"/> y apila
+    /// la escena <see cref="GameOverScene"/> en el <see cref="SceneManager"/>.
+    /// </summary>
     private void GameOver()
     {
-        // Desuscribirse para no dejar eventos colgados
         VidaManager.OnPerderVida -= Respawn;
         VidaManager.OnGameOver -= GameOver;
 

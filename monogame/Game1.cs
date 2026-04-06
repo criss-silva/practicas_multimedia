@@ -5,71 +5,119 @@ using Microsoft.Xna.Framework.Input;
 
 namespace capybara;
 
+/// <summary>
+/// Clase principal del juego. Punto de entrada de la aplicación MonoGame.
+/// Hereda de <see cref="Game"/> y es responsable de inicializar el motor gráfico,
+/// cargar el contenido inicial, gestionar el ciclo de vida del juego (Update / Draw)
+/// y coordinar el <see cref="SceneManager"/> con el <see cref="HUD"/>.
+/// </summary>
 public class Game1 : Game
 {
+    /// <summary>
+    /// Gestor del dispositivo gráfico. Permite configurar resolución,
+    /// modo de pantalla completa y otros parámetros de presentación.
+    /// </summary>
     private GraphicsDeviceManager _graphics;
+
+    /// <summary>
+    /// Objeto principal de renderizado por lotes. Agrupa todas las llamadas
+    /// de dibujo de un frame para minimizar las llamadas a la GPU.
+    /// </summary>
     private SpriteBatch _spriteBatch;
+
+    /// <summary>
+    /// Gestor de escenas basado en pila. Controla qué escena está activa
+    /// en cada momento y permite la transición entre ellas.
+    /// </summary>
     private SceneManager sceneManager;
+
+    /// <summary>
+    /// Heads-Up Display del juego. Muestra información persistente como
+    /// las vidas restantes del jugador. Solo se dibuja durante las escenas de juego.
+    /// </summary>
     private HUD _hud;
 
+    /// <summary>
+    /// Inicializa una nueva instancia de <see cref="Game1"/>.
+    /// Configura la resolución de la ventana a 1280x720, hace visible el cursor
+    /// del ratón e instancia el <see cref="SceneManager"/>.
+    /// </summary>
     public Game1()
-    { 
+    {
         _graphics = new GraphicsDeviceManager(this);
         _graphics.PreferredBackBufferWidth = 1280;
         _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
-        
-        
+
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         sceneManager = new SceneManager();
     }
 
+    /// <summary>
+    /// Inicialización del motor MonoGame. Invoca la inicialización base
+    /// antes de cualquier configuración adicional.
+    /// </summary>
     protected override void Initialize()
     {
         base.Initialize();
     }
 
+    /// <summary>
+    /// Carga todos los recursos persistentes del juego que existen durante
+    /// toda la sesión, independientemente de la escena activa.
+    /// Crea el <see cref="SpriteBatch"/>, inicializa el <see cref="HUD"/> y
+    /// apila la escena inicial (<see cref="MenuScene"/>) en el <see cref="SceneManager"/>.
+    /// </summary>
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-        _hud = new HUD();              
-        _hud.LoadContent(Content);     
+        _hud = new HUD();
+        _hud.LoadContent(Content);
 
-        
-        // iniciamos con el menu
-       GameScene3 nivelPrueba = new GameScene3(sceneManager, Content, GraphicsDevice);
-    nivelPrueba.LoadContent();
-    sceneManager.AddScene(nivelPrueba);
+        MenuScene menu = new MenuScene(sceneManager, Content, GraphicsDevice);
+        menu.LoadContent();
+        sceneManager.AddScene(menu);
     }
 
+    /// <summary>
+    /// Ciclo de actualización lógica del juego. Se ejecuta una vez por frame.
+    /// Delega la actualización a la escena que se encuentre en la cima de la pila
+    /// del <see cref="SceneManager"/>. Permite salir del juego con la tecla Escape.
+    /// </summary>
+    /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     protected override void Update(GameTime gameTime)
     {
-        //salir
         if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
 
-        //actualizamos con la escena que este en la pila arriba
         sceneManager.sceneaActual()?.Update(gameTime);
 
         base.Update(gameTime);
     }
 
-protected override void Draw(GameTime gameTime)
-{
-    GraphicsDevice.Clear(new Color(111, 94, 132));
-
-    _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-        
-    sceneManager.sceneaActual()?.Draw(_spriteBatch);
-
-    // Solo dibujar el HUD en escenas de juego no en el resto
-    IScene escenaActual = sceneManager.sceneaActual();
-    if (escenaActual is GameScene || escenaActual is GameScene2)
+    /// <summary>
+    /// Ciclo de renderizado del juego. Se ejecuta una vez por frame tras <see cref="Update"/>.
+    /// Limpia el buffer con el color de fondo, dibuja la escena activa y, únicamente
+    /// si la escena actual es una escena de juego (<see cref="GameScene"/>,
+    /// <see cref="GameScene2"/> o <see cref="GameScene3"/>), dibuja el <see cref="HUD"/>
+    /// por encima. El HUD no se muestra en menús ni en pantallas de victoria o derrota.
+    /// </summary>
+    /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
+    protected override void Draw(GameTime gameTime)
     {
-        _hud.Draw(_spriteBatch);
-    }
+        GraphicsDevice.Clear(new Color(111, 94, 132));
 
-    _spriteBatch.End();
-    base.Draw(gameTime);
-}
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+        sceneManager.sceneaActual()?.Draw(_spriteBatch);
+
+        IScene escenaActual = sceneManager.sceneaActual();
+        if (escenaActual is GameScene || escenaActual is GameScene2 || escenaActual is GameScene3)
+        {
+            _hud.Draw(_spriteBatch);
+        }
+
+        _spriteBatch.End();
+        base.Draw(gameTime);
+    }
 }
