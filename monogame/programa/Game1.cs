@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -36,6 +37,13 @@ public class Game1 : Game
     /// las vidas restantes del jugador. Solo se dibuja durante las escenas de juego.
     /// </summary>
     private HUD _hud;
+
+    /// <summary>
+    /// Guarda el estado del teclado del frame anterior. 
+    /// Esencial para detectar cuándo una tecla acaba de ser pulsada (Single Press)
+    /// y evitar que la transición de pausa parpadee a 60 frames por segundo.
+    /// </summary>
+    private KeyboardState _estadoTecladoAnterior;
 
     /// <summary>
     /// Inicializa una nueva instancia de <see cref="Game1"/>.
@@ -83,13 +91,35 @@ public class Game1 : Game
     /// <summary>
     /// Ciclo de actualización lógica del juego. Se ejecuta una vez por frame.
     /// Delega la actualización a la escena que se encuentre en la cima de la pila
-    /// del <see cref="SceneManager"/>. Permite salir del juego con la tecla Escape.
+    /// del <see cref="SceneManager"/>. También gestiona la entrada al menú de pausa.
     /// </summary>
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     protected override void Update(GameTime gameTime)
     {
-        if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
+        KeyboardState estadoTecladoActual = Keyboard.GetState();
+        IScene escenaActual = sceneManager.sceneaActual();
 
+        // Detectamos si la tecla Escape ha sido presionada en este frame exacto
+        if (estadoTecladoActual.IsKeyDown(Keys.Escape) && _estadoTecladoAnterior.IsKeyUp(Keys.Escape))
+        {
+            if (escenaActual is EscenaPausa) 
+            {
+
+                sceneManager.RemoveScene(); 
+            }
+            else if (escenaActual is GameScene || escenaActual is GameScene2 || escenaActual is GameScene3)
+            {
+                
+                EscenaPausa pausa = new EscenaPausa(sceneManager, Content, GraphicsDevice); 
+                pausa.LoadContent();
+                sceneManager.AddScene(pausa);
+            }
+        }
+
+       
+        _estadoTecladoAnterior = estadoTecladoActual;
+
+        
         sceneManager.sceneaActual()?.Update(gameTime);
 
         base.Update(gameTime);
@@ -109,6 +139,7 @@ public class Game1 : Game
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
+    
         sceneManager.sceneaActual()?.Draw(_spriteBatch);
 
         IScene escenaActual = sceneManager.sceneaActual();

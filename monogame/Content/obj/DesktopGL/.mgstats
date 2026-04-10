@@ -1,2 +1,2 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"c:/juego/practicas_multimedia/monogame/Content/enemigo1.png","c:/juego/practicas_multimedia/monogame/Content/bin/DesktopGL/enemigo1.xnb","TextureProcessor","Texture2DContent",161188,32000085,0,7772781
+"c:/juego/practicas_multimedia/monogame/Content/boton_reanudar.png","c:/juego/practicas_multimedia/monogame/Content/bin/DesktopGL/boton_reanudar.xnb","TextureProcessor","Texture2DContent",43188,8000085,0,3886388

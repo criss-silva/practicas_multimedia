@@ -99,6 +99,8 @@ namespace capybara
             int xNombreCentrada = (1280 - anchoNombre) / 2;
             int yNombre = rect_jugar.Y - altoNombre + 300;
             rect_nombre = new Rectangle(xNombreCentrada, yNombre, anchoNombre, altoNombre);
+
+            _mouseAnterior = Mouse.GetState();
         }
 
         /// <summary>
@@ -120,19 +122,16 @@ namespace capybara
         /// la pulsación, crea y apila una nueva instancia de <see cref="GameScene"/>.
         /// </summary>
         /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
-        public void Update(GameTime gameTime)
+       public void Update(GameTime gameTime)
         {
             MouseState mouseActual = Mouse.GetState();
             Point mousePos = new Point(mouseActual.X, mouseActual.Y);
 
-            if (col_jugar.Contains(mousePos))
+            if (col_jugar.Contains(mousePos) && mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
             {
-                if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
-                {
-                    GameScene juego = new GameScene(_sceneManager, _content, _graphicsDevice);
-                    juego.LoadContent();
-                    _sceneManager.AddScene(juego);
-                }
+                GameScene juego = new GameScene(_sceneManager, _content, _graphicsDevice);
+                juego.LoadContent();
+                _sceneManager.AddScene(juego);
             }
 
             _mouseAnterior = mouseActual;

@@ -13,6 +13,7 @@
     <File>c:/juego/practicas_multimedia/monogame/Content/boton_ajustes.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/boton_jugar.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/boton_menu.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/boton_reanudar.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/boton_restart.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/enemigo1.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/fondo.png</File>
@@ -22,6 +23,7 @@
     <File>c:/juego/practicas_multimedia/monogame/Content/vidas.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

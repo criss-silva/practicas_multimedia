@@ -36,9 +36,12 @@ public class GameOverScene : IScene
 
     /// <summary>Rectángulo de posición y tamaño del botón de reinicio en pantalla.</summary>
     private Rectangle _rectReiniciar;
+    private Rectangle colReiniciar;
 
     /// <summary>Rectángulo de posición y tamaño del botón de menú en pantalla.</summary>
     private Rectangle _rectMenu;
+    private Rectangle colMenu;
+
 
     /// <summary>Color de tinte del botón de reinicio. Cambia a gris cuando el ratón pasa por encima.</summary>
     private Color _colorReiniciar = Color.White;
@@ -110,6 +113,11 @@ public class GameOverScene : IScene
         int anchoM = (int)(_texMenu.Width * escala * ajusteAncho);
         int altoM = (int)(_texMenu.Height * escala * ajusteAlto);
         _rectMenu = new Rectangle(1280 / 2 - (anchoM / 2), 350, anchoM, altoM);
+
+
+         int altoClic = 80;
+        colReiniciar = new Rectangle(1280 / 2 - (anchoR / 2), _rectReiniciar.Y + (altoR / 2) - (altoClic / 2), anchoR, altoClic);
+        colMenu = new Rectangle(1280 / 2 - (anchoM / 2), _rectMenu.Y + (altoM / 2) - (altoClic / 2), anchoM, altoClic);
     }
 
     /// <summary>
@@ -187,7 +195,12 @@ public class GameOverScene : IScene
     /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
     public void Draw(SpriteBatch spriteBatch)
     {
+
+
         spriteBatch.Draw(_pixel, new Rectangle(0, 0, 1280, 720), Color.Red * 0.7f);
+           
+        Color colorReanudar = colReiniciar.Contains(Mouse.GetState().Position) ? Color.Gray : Color.White;
+        Color colorMenu = colMenu.Contains(Mouse.GetState().Position) ? Color.Gray : Color.White;
 
         spriteBatch.Draw(_texReiniciar, _rectReiniciar, _colorReiniciar);
         spriteBatch.Draw(_texMenu, _rectMenu, _colorMenu);
