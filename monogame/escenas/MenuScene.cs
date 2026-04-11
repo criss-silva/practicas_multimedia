@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace capybara
 {
+
     /// <summary>
     /// Escena del menú principal del juego. Es la primera escena que ve el jugador
     /// al iniciar la aplicación y sirve como punto de retorno tras completar una
@@ -14,6 +15,10 @@ namespace capybara
     /// </summary>
     public class MenuScene : IScene
     {
+       /// <summary>
+       /// fondo animado para la pantalla de inicio
+       /// </summary>
+        private AnimacionFondo _animacionFondo;   
         /// <summary>Textura de fondo que ocupa toda la pantalla.</summary>
         private Texture2D _fondo;
 
@@ -109,7 +114,8 @@ namespace capybara
         /// </summary>
         public void LoadContent()
         {
-            _fondo = _content.Load<Texture2D>("fondo");
+            Texture2D sheetMenu = _content.Load<Texture2D>("fondo_burbuja");   
+            _animacionFondo = new AnimacionFondo(sheetMenu, totalFrames: 16, fps: 7f);
             _nombreJuego = _content.Load<Texture2D>("nombre_juego");
             boton_jugar = _content.Load<Texture2D>("boton_jugar");
             boton_ajustes = _content.Load<Texture2D>("boton_ajustes");
@@ -124,14 +130,15 @@ namespace capybara
         /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
        public void Update(GameTime gameTime)
         {
+            _animacionFondo.Update(gameTime);
             MouseState mouseActual = Mouse.GetState();
             Point mousePos = new Point(mouseActual.X, mouseActual.Y);
 
             if (col_jugar.Contains(mousePos) && mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
             {
-                GameScene juego = new GameScene(_sceneManager, _content, _graphicsDevice);
-                juego.LoadContent();
-                _sceneManager.AddScene(juego);
+                EscenaSeleccionada seleccion = new EscenaSeleccionada(_sceneManager, _content, _graphicsDevice);
+                seleccion.LoadContent();
+                _sceneManager.AddScene(seleccion);
             }
 
             _mouseAnterior = mouseActual;
@@ -145,7 +152,7 @@ namespace capybara
         /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_fondo, new Rectangle(0, 0, 1280, 720), Color.White);
+            _animacionFondo.Draw(spriteBatch, new Rectangle(0, 0, 1280, 720));
 
             spriteBatch.Draw(_nombreJuego, rect_nombre, Color.White);
 

@@ -74,6 +74,10 @@ public class GameScene2 : IScene
     /// <summary>Dispositivo gráfico necesario para crear texturas procedurales.</summary>
     private GraphicsDevice _graphicsDevice;
 
+    /// </summary>Variable dedicada a la textura del fondo
+    private Texture2D _fondo;
+
+
     /// <summary>
     /// Inicializa una nueva instancia de <see cref="GameScene2"/>.
     /// Se suscribe a los eventos de <see cref="VidaManager"/> para reaccionar
@@ -121,7 +125,7 @@ public class GameScene2 : IScene
     }
 
     /// <summary>
-    /// Carga todos los recursos del nivel 2: tilemap desde CSV, tilesheet,
+    /// Carga todos los recursos del nivel 2: tilemap desde CSV,fondo del nivel, tilesheet,
     /// sprites del personaje y sus animaciones. Registra los colisionadores
     /// del personaje y de todos los tiles sólidos en el <see cref="CollisionManager"/>.
     /// <para>
@@ -137,6 +141,7 @@ public class GameScene2 : IScene
     public void LoadContent()
     {
         tilemap = CargarMapa("Content/nivel2.csv");
+        _fondo = Content.Load<Texture2D>("fondo_nivel1");
         textureAtlas = Content.Load<Texture2D>("tilesheet");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
@@ -285,7 +290,7 @@ public class GameScene2 : IScene
 
     /// <summary>
     /// Dibuja todos los elementos visuales del nivel en el orden correcto:
-    /// primero los tiles del tilemap (omitiendo los tiles especiales sin textura),
+    /// Primero el fondo completo, seguido los tiles del tilemap (omitiendo los tiles especiales sin textura),
     /// luego el personaje con su animación activa (normal, burbuja o salida de burbuja)
     /// y finalmente el bounding box de depuración en rojo semitransparente.
     /// </summary>
@@ -293,10 +298,11 @@ public class GameScene2 : IScene
     public void Draw(SpriteBatch spriteBatch)
     {
         int tileSize = 60;
-
+        spriteBatch.Draw(_fondo, new Rectangle(0, 0, 1280, 720), Color.White);
+        
         foreach (var item in tilemap)
         {
-            if (item.Value == 99 || item.Value == 50 || item.Value == 100) continue;
+            if (item.Value == 99 || item.Value == 50 || item.Value == 100 || item.Value==18) continue;
 
             Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
@@ -357,4 +363,12 @@ public class GameScene2 : IScene
         }
         return resultado;
     }
+    /// <summary>
+/// Aplica la posición guardada al personaje tras cargar el nivel.
+/// Se llama desde EscenaSeleccionada al continuar una partida.
+/// </summary>
+public void AplicarPosicionGuardada(float x, float y)
+{
+    personaje.position = new Vector2(x, y);
+}
 }
