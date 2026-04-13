@@ -12,7 +12,7 @@ namespace capybara
     /// un colisionador configurable, como el jugador (<see cref="MovedSprite"/>)
     /// y el enemigo (<see cref="Enemigo"/>).
     /// </summary>
-    internal class ScaledSprite : Sprite
+    public class ScaledSprite : Sprite
     {
         /// <summary>Factor de escala visual aplicado al sprite al dibujarlo.</summary>
         public float scale;

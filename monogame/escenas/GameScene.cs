@@ -24,6 +24,10 @@ public class GameScene : IScene
     /// identificador numérico del tile en el tilesheet.
     /// </summary>
     private Dictionary<Vector2, int> tilemap;
+    /// <summary>
+    /// Referencia al checkpoint que usaremos para guardar el proceso
+    /// </summary>    
+    Checkpoint _checkpoint = null;
 
     /// <summary>
     /// Lista de rectángulos fuente que mapean cada identificador de tile
@@ -151,13 +155,26 @@ public class GameScene : IScene
         int tileSize = 60;
         foreach (var item in tilemap)
         {
-            if (item.Value != 18 && item.Value != 99 && item.Value != 50)
+            if (item.Value != 18 && item.Value != 99 && item.Value != 50 && item.Value!=200)
             {
                 BoxCollider bloque = new BoxCollider(
                     new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize),
                     tileSize, tileSize);
                 CollisionManager.AddCollider(bloque);
             }
+            
+                if (item.Value == 200)
+                {
+                    Texture2D texEstatica = Content.Load<Texture2D>("columna_basica");
+                    Texture2D texCheckpointAnim = Content.Load<Texture2D>("columna_spritesheet"); // nombre distinto
+                    _checkpoint = new Checkpoint(
+                        texEstatica,
+                        texCheckpointAnim,
+                        new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize),
+                        nivel: 1,
+                        totalFrames: 8
+                    );
+                }
         }
 
         pixel = new Texture2D(_graphicsDevice, 1, 1);
@@ -179,6 +196,7 @@ public class GameScene : IScene
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     public void Update(GameTime gameTime)
     {
+        _checkpoint?.Update(gameTime, personaje);
         KeyboardState tecladoActual = Keyboard.GetState();
 
         Rectangle playerRect = personaje.Rect;
@@ -222,7 +240,7 @@ public class GameScene : IScene
                     tileSize, tileSize);
 
                 if (personaje.Rect.Intersects(tileMeta))
-                {
+                { 
                     CollisionManager.Clear();
                     GameScene2 nivel2 = new GameScene2(_sceneManager, Content, _graphicsDevice);
                     nivel2.LoadContent();
@@ -244,16 +262,18 @@ public class GameScene : IScene
     /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
     public void Draw(SpriteBatch spriteBatch)
     {
+        
         int tileSize = 60;
         spriteBatch.Draw(_fondo, new Rectangle(0, 0, 1280, 720), Color.White);
         
         foreach (var item in tilemap)
         {
-            if (item.Value == 99 || item.Value == 50 || item.Value==18) continue;
+            if (item.Value == 99 || item.Value == 50 || item.Value==18 || item.Value==200) continue;
 
             Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
+        _checkpoint?.Draw(spriteBatch);
 
         if (personaje.EnEstadoS || personaje.SaliendoDeS)
         {

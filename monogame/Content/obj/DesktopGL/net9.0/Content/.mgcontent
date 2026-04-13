@@ -15,6 +15,8 @@
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_menu.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_reanudar.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_restart.png</File>
+    <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/columna_basica.png</File>
+    <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/columna_spritesheet.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/enemigo1.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo_burbuja.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo_nivel1.png</File>
@@ -25,6 +27,8 @@
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/vidas.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

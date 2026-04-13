@@ -13,7 +13,7 @@ namespace capybara
     /// de entrada y salida del escudo, y resolución de colisiones contra el
     /// <see cref="CollisionManager"/>.
     /// </summary>
-    internal class MovedSprite : ScaledSprite
+    public class MovedSprite : ScaledSprite
     {
         /// <summary>Velocidad de desplazamiento horizontal en píxeles por frame.</summary>
         private float speed;

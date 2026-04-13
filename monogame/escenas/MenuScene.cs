@@ -136,7 +136,7 @@ namespace capybara
 
             if (col_jugar.Contains(mousePos) && mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
             {
-                EscenaSeleccionada seleccion = new EscenaSeleccionada(_sceneManager, _content, _graphicsDevice);
+                EscenaSeleccionada seleccion = new EscenaSeleccionada(_sceneManager, _content, _graphicsDevice, _animacionFondo);
                 seleccion.LoadContent();
                 _sceneManager.AddScene(seleccion);
             }
