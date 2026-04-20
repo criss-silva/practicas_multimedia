@@ -54,6 +54,10 @@ public class GameScene : IScene
     /// </summary>
     private Texture2D pixel;
 
+    private bool _mostrarInstrucciones = true;
+    private Texture2D _texturaPanel;
+    private Rectangle _rectPanel;
+
     /// <summary>Referencia al gestor de escenas para poder apilar nuevas escenas.</summary>
     private SceneManager _sceneManager;
 
@@ -89,6 +93,9 @@ public class GameScene : IScene
     /// <param name="sm">Gestor de escenas del juego.</param>
     /// <param name="content">Gestor de contenido para la carga de assets.</param>
     /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
+    /// 
+    private objetos columna;
+    
     public GameScene(SceneManager sm, ContentManager content, GraphicsDevice gd)
     {
         _sceneManager = sm;
@@ -97,6 +104,10 @@ public class GameScene : IScene
 
         VidaManager.OnPerderVida += Respawn;
         VidaManager.OnGameOver += GameOver;
+
+        int anchoPanel = 400; 
+        int altoPanel = 300;  
+        _rectPanel = new Rectangle((1280 - anchoPanel) / 2, (720 - altoPanel) / 2, anchoPanel, altoPanel);
     }
 
     /// <summary>
@@ -122,6 +133,7 @@ public class GameScene : IScene
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
         personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida);
         sprites = new List<Sprite> { personaje };
+
 
         CollisionManager.AddCollider(personaje.Collider);
         personaje.Collider.Owner = "player";
@@ -162,23 +174,17 @@ public class GameScene : IScene
                     tileSize, tileSize);
                 CollisionManager.AddCollider(bloque);
             }
-            
-                if (item.Value == 200)
-                {
-                    Texture2D texEstatica = Content.Load<Texture2D>("columna_basica");
-                    Texture2D texCheckpointAnim = Content.Load<Texture2D>("columna_spritesheet"); // nombre distinto
-                    _checkpoint = new Checkpoint(
-                        texEstatica,
-                        texCheckpointAnim,
-                        new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize),
-                        nivel: 1,
-                        totalFrames: 8
-                    );
-                }
         }
+        columna = new objetos(Content.Load<Texture2D>("columna_spritesheet"), new Vector2(210, 185), 2.0f, 12);
+        Texture2D texCaminar = Content.Load<Texture2D>("movimiento_capibara");
+        personaje.TexCaminar = texCaminar;
+        personaje.TotalFramesCaminar = 4;
 
         pixel = new Texture2D(_graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
+
+        _texturaPanel = new Texture2D(_graphicsDevice, 1, 1);
+        _texturaPanel.SetData(new[] { Color.Gray * 0.9f }); 
     }
 
     /// <summary>
@@ -196,8 +202,20 @@ public class GameScene : IScene
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     public void Update(GameTime gameTime)
     {
-        _checkpoint?.Update(gameTime, personaje);
         KeyboardState tecladoActual = Keyboard.GetState();
+
+        if (_mostrarInstrucciones)
+        {
+            if (tecladoActual.IsKeyDown(Keys.Enter) || tecladoActual.IsKeyDown(Keys.Space))
+            {
+                _mostrarInstrucciones = false;
+            }
+            
+            teclaanterior = tecladoActual;
+            return; 
+        }
+
+        _checkpoint?.Update(gameTime, personaje);
 
         Rectangle playerRect = personaje.Rect;
         personaje.Collider.Position = new Vector2(playerRect.X, playerRect.Y);
@@ -206,6 +224,7 @@ public class GameScene : IScene
 
         CollisionManager.Update();
         personaje.Update(tecladoActual, teclaanterior, gravedad, fuerza, gameTime);
+        columna.Update(gameTime, personaje, tilemap);
 
         List<Sprite> killist = new();
         foreach (var sprite in sprites)
@@ -256,7 +275,7 @@ public class GameScene : IScene
     /// <summary>
     /// Dibuja todos los elementos visuales del nivel en el orden correcto:
     /// Primero el fondo completo, seguido los tiles del tilemap (omitiendo los tiles especiales sin textura),
-    /// luego el personaje con su animación activa (normal, burbuja o salida de burbuja)
+    /// luego el personaje con su animation activa (normal, burbuja o salida de burbuja)
     /// y finalmente el bounding box de depuración en rojo semitransparente.
     /// </summary>
     /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
@@ -274,6 +293,7 @@ public class GameScene : IScene
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
         _checkpoint?.Draw(spriteBatch);
+        columna.Draw(spriteBatch); 
 
         if (personaje.EnEstadoS || personaje.SaliendoDeS)
         {
@@ -290,6 +310,18 @@ public class GameScene : IScene
 
             spriteBatch.Draw(texAUsar, personaje.position, fuente, Color.White, 0f, origen, escalaFinal, personaje.efecto, 0f);
         }
+            else if (personaje.EstaCaminando && personaje.TexCaminar != null) 
+        {
+            
+            int anchoFrame = personaje.TexCaminar.Width / personaje.TotalFramesCaminar;
+            int altoFrame = personaje.TexCaminar.Height;
+            Rectangle fuente = new Rectangle(personaje.FrameActualCaminar * anchoFrame, 0, anchoFrame, altoFrame);
+            
+            Vector2 origen = new Vector2(anchoFrame / 2f, altoFrame / 2f);
+
+            spriteBatch.Draw(personaje.TexCaminar, personaje.position, fuente, Color.White, 0f, origen, escala, personaje.efecto, 0f);
+        }
+
         else
         {
             spriteBatch.Draw(personaje.texture, personaje.position, null, Color.White, 0f,
@@ -298,7 +330,18 @@ public class GameScene : IScene
         }
 
         spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
+        
+        if (_mostrarInstrucciones)
+        {
+            spriteBatch.Draw(pixel, new Rectangle(0, 0, 1280, 720), Color.Black * 0.6f);
+
+            if (_texturaPanel != null)
+            {
+                spriteBatch.Draw(_texturaPanel, _rectPanel, Color.White);
+            }
+        }
     }
+    
 
     /// <summary>
     /// Lee un archivo CSV de tilemap y lo convierte en un diccionario de tiles.
@@ -359,11 +402,11 @@ public class GameScene : IScene
         _sceneManager.AddScene(gameOver);
     }
     /// <summary>
-/// Aplica la posición guardada al personaje tras cargar el nivel.
-/// Se llama desde EscenaSeleccionada al continuar una partida.
-/// </summary>
-public void AplicarPosicionGuardada(float x, float y)
-{
-    personaje.position = new Vector2(x, y);
-}
+    /// Aplica la posición guardada al personaje tras cargar el nivel.
+    /// Se llama desde EscenaSeleccionada al continuar una partida.
+    /// </summary>
+    public void AplicarPosicionGuardada(float x, float y)
+    {
+        personaje.position = new Vector2(x, y);
+    }
 }

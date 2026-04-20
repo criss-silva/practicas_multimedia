@@ -108,7 +108,18 @@ namespace capybara
         /// <param name="speed">Velocidad de desplazamiento horizontal en píxeles por frame.</param>
         /// <param name="texEspecial">Sprite sheet de la animación de entrada al escudo.</param>
         /// <param name="texSalida">Sprite sheet de la animación de salida del escudo.</param>
-        public MovedSprite(Texture2D texture, Vector2 position, float scale, float speed,
+        /// 
+        /// 
+            public Texture2D TexCaminar { get; set; }
+            public int TotalFramesCaminar { get; set; } = 4; 
+            public int FrameActualCaminar { get; private set; }
+
+            private float _timerCaminar;
+            private float _tiempoPorFrame = 0.1f; 
+
+            
+            public bool EstaCaminando => Math.Abs(velocity.X) > 0.1f;
+            public MovedSprite(Texture2D texture, Vector2 position, float scale, float speed,
                            Texture2D texEspecial, Texture2D texSalida)
             : base(texture, position, scale)
         {
@@ -146,7 +157,6 @@ namespace capybara
         {
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Activación del escudo: solo si no está ya activo ni en fase de salida
             if (keyboard.IsKeyDown(Keys.S) && !EnEstadoS && !SaliendoDeS && teclaanterior.IsKeyUp(Keys.S))
             {
                 EnEstadoS = true;
@@ -155,7 +165,7 @@ namespace capybara
                 CollisionManager.IgnorePlayerEnemyCollisions = true;
             }
 
-            // Lógica durante el escudo activo
+            
             if (EnEstadoS)
             {
                 _timerS += dt;
@@ -168,7 +178,7 @@ namespace capybara
                     _timerAnimacion = 0f;
                 }
 
-                // El escudo expira tras 3 segundos y pasa a la fase de salida
+                
                 if (_timerS >= 3f)
                 {
                     EnEstadoS = false;
@@ -181,7 +191,7 @@ namespace capybara
                 prevKeyboard = keyboard;
             }
 
-            // Lógica durante la animación de salida del escudo
+            
             if (SaliendoDeS)
             {
                 velocity.X = 0;
@@ -220,7 +230,7 @@ namespace capybara
                 velocity.X = 0;
             }
 
-            // Compensación de posición al girar para evitar desplazamiento visual brusco
+            
             if (efectoAnterior == SpriteEffects.None && efecto == SpriteEffects.FlipHorizontally)
                 position.X -= offsetCompensacionGiro;
             else if (efectoAnterior == SpriteEffects.FlipHorizontally && efecto == SpriteEffects.None)
@@ -237,7 +247,30 @@ namespace capybara
             AplicarFisicasYColisiones(gravedad);
 
             prevKeyboard = keyboard;
-        }
+
+
+            if (EstaCaminando)
+            {
+                
+                _timerCaminar += dt;
+                
+                if (_timerCaminar >= _tiempoPorFrame)
+                {
+                    FrameActualCaminar = (FrameActualCaminar + 1) % TotalFramesCaminar;
+                    _timerCaminar = 0;
+                }
+
+                // 2. Volteamos el sprite dependiendo de si va a la izquierda o derecha
+                efecto = velocity.X > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+            }
+            else
+            {
+                // Si se detiene, volvemos al primer frame (frame de reposo/idle)
+                FrameActualCaminar = 0;
+                _timerCaminar = 0;
+            }
+}
+        
 
         /// <summary>
         /// Aplica gravedad, mueve al jugador y resuelve colisiones contra el tilemap

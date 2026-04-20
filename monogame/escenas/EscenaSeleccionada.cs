@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
+using System.Runtime.CompilerServices;
 
 namespace capybara
 {
@@ -11,13 +12,15 @@ namespace capybara
         private ContentManager _content;
         private GraphicsDevice _graphicsDevice;
         private Texture2D _pixel;
+        private bool _ratonSoltado = false;
 
         private AnimacionFondo _animacionfondo;
 
         private Rectangle _rectStart;
         private Rectangle _rectContinue;
-        private Color _colorStart = Color.Green;
-        private Color _colorContinue = Color.Gray;
+        private Texture2D startTexture;
+        private Texture2D continueTexture;
+        
         private MouseState _mouseAnterior;
 
         public EscenaSeleccionada(SceneManager sm, ContentManager content, GraphicsDevice gd, AnimacionFondo animacionfondo)
@@ -28,16 +31,18 @@ namespace capybara
             _animacionfondo = animacionfondo;
             
 
-            // Start — derecha
-            _rectStart = new Rectangle(850, 260, 200, 200);
-            // Continue — izquierda
-            _rectContinue = new Rectangle(230, 260, 200, 200);
+           
+            _rectStart = new Rectangle(550, 150, 600, 400);
+            _rectContinue = new Rectangle(100, 150, 600, 400);
         }
 
         public void LoadContent()
         {
             _pixel = new Texture2D(_graphicsDevice, 1, 1);
             _pixel.SetData(new[] { Color.White });
+            startTexture = _content.Load<Texture2D>("boton_nuevo_juego");
+            continueTexture = _content.Load<Texture2D>("boton_continuar");
+
         }
 
         public void Update(GameTime gameTime)
@@ -45,40 +50,44 @@ namespace capybara
             _animacionfondo.Update(gameTime);
             MouseState mouseActual = Mouse.GetState();
             Point mousePos = new Point(mouseActual.X, mouseActual.Y);
-
-            // Hover y click en Start
-            if (_rectStart.Contains(mousePos))
+             // para que no se mezclen los clicks entre escenas
+            if (mouseActual.LeftButton == ButtonState.Released)
             {
-                _colorStart = Color.LightGreen;
-                if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
+                _ratonSoltado = true; 
+            }
+
+           
+            if (_ratonSoltado)
+            {
+                if (_rectStart.Contains(mousePos))
                 {
-                    SaveManager.BorrarSave();
-                    GameScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);
-                    nivel1.LoadContent();
-                    _sceneManager.AddScene(nivel1);
+                    
+                    if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
+                    {
+                        SaveManager.BorrarSave();
+                        GameScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);
+                        nivel1.LoadContent();
+                        _sceneManager.AddScene(nivel1);
+                        return; 
+                    }
                 }
             }
-            else _colorStart = Color.Green;
-
-            // Hover en Continue (sin funcionalidad aún)
-            if (_rectContinue.Contains(mousePos))
-                _colorContinue = Color.DimGray;
-            else
-                _colorContinue = Color.Gray;
-
             _mouseAnterior = mouseActual;
         }
+            
 
+            
+           
         public void Draw(SpriteBatch spriteBatch)
         {
 
-            // Fondo de la pantalla
+          
             _animacionfondo.Draw(spriteBatch, new Rectangle(0, 0, 1280, 720));
-            // Cuadrado Start (derecha) — verde
-            spriteBatch.Draw(_pixel, _rectStart, _colorStart);
+            
+            spriteBatch.Draw(startTexture, _rectStart, Color.White);
 
-            // Cuadrado Continue (izquierda) — gris apagado
-            spriteBatch.Draw(_pixel, _rectContinue, _colorContinue);
+            
+            spriteBatch.Draw(continueTexture, _rectContinue, Color.White);
         }
     }
 }
