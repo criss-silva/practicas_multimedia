@@ -11,8 +11,10 @@
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/animacion_perder.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/animacion_romper_burbuja.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_ajustes.png</File>
+    <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_continuar.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_jugar.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_menu.png</File>
+    <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_nuevo_juego.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_reanudar.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/boton_restart.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/columna_basica.png</File>
@@ -21,12 +23,16 @@
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo_burbuja.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo_nivel1.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo.png</File>
+    <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/movimiento_capibara.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/nombre_juego.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/personaje_basico.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/tilesheet.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/vidas.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
