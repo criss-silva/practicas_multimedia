@@ -51,6 +51,7 @@ namespace capybara
             Historial data = new Historial { Nivel = nivel, PosX = x, PosY = y };
             string json = JsonSerializer.Serialize(data);
             File.WriteAllText(_rutaGuardado, json);
+            System.Diagnostics.Debug.WriteLine($"[SaveManager] Guardado en: {Path.GetFullPath(_rutaGuardado)}");
         }
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace capybara
         {
             if (!ExisteSave()) return null;
             string json = File.ReadAllText(_rutaGuardado);
+            System.Diagnostics.Debug.WriteLine($"[SaveManager] Cargando save: {json}");
             return JsonSerializer.Deserialize<Historial>(json);
         }
 

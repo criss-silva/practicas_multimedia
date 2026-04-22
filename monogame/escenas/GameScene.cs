@@ -80,6 +80,11 @@ public class GameScene : IScene
 
     /// <summary>Dispositivo gráfico necesario para crear texturas procedurales.</summary>
     private GraphicsDevice _graphicsDevice;
+    /// <summary>
+    /// Coordenadas guardadas para el respawn
+    /// </summary>
+    private float? _spawnX;
+    private float? _spawnY;
 
     /// <summary>
     /// Inicializa una nueva instancia de <see cref="GameScene"/>.
@@ -89,11 +94,15 @@ public class GameScene : IScene
     /// <param name="sm">Gestor de escenas del juego.</param>
     /// <param name="content">Gestor de contenido para la carga de assets.</param>
     /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
-    public GameScene(SceneManager sm, ContentManager content, GraphicsDevice gd)
+    public GameScene(SceneManager sm, ContentManager content, GraphicsDevice gd, float? posX = null, float? posY = null)
     {
         _sceneManager = sm;
         this.Content = content;
         this._graphicsDevice = gd;
+
+        // Guardamos las coordenadas del checkpoint si existen
+        _spawnX = posX;
+        _spawnY = posY;
 
         VidaManager.OnPerderVida += Respawn;
         VidaManager.OnGameOver += GameOver;
@@ -120,9 +129,21 @@ public class GameScene : IScene
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
-        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida);
-        sprites = new List<Sprite> { personaje };
 
+
+        Vector2 posicionInicial;
+        if (_spawnX.HasValue && _spawnY.HasValue)
+        {
+            // Si tenemos valores en los campos que guardamos en el constructor, los usamos
+            posicionInicial = new Vector2(_spawnX.Value, _spawnY.Value);
+        }
+        else
+        {
+            // Si no hay guardado (partida nueva), usamos la posición inicial por defecto
+            posicionInicial = new Vector2(100, 90); 
+        }
+        personaje = new MovedSprite(texturecapibara, posicionInicial, escala, velocidad, texAnimacion, texSalida);
+        sprites = new List<Sprite> { personaje };
         CollisionManager.AddCollider(personaje.Collider);
         personaje.Collider.Owner = "player";
 
@@ -338,8 +359,11 @@ public class GameScene : IScene
     /// </summary>
     private void Respawn()
     {
-        personaje.position = new Vector2(100, 90);
-        personaje.velocity = Vector2.Zero;
+        personaje.position = (_spawnX.HasValue && _spawnY.HasValue) 
+                ? new Vector2(_spawnX.Value, _spawnY.Value) 
+                : new Vector2(100, 90);
+                
+            personaje.velocity = Vector2.Zero;
     }
 
     /// <summary>

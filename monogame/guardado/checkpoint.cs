@@ -96,7 +96,7 @@ namespace capybara
             if (!_activado && _rect.Intersects(jugador.Rect))
             {
                 _activado = true;
-                SaveManager.Guardar(_nivel, jugador.position.X, jugador.position.Y);
+                SaveManager.Guardar(_nivel, _posicion.X, _posicion.Y);
             }
 
             // La animación solo avanza tras la activación
