@@ -310,6 +310,20 @@ namespace capybara
                 position.X = oldPosX;
                 ActualizarCollider();
             }
+                   
+            if (position.X < 0) position.X = 0;
+            if (position.X > 1280) position.X = 1280;
+
+            
+            if (position.Y > 720 + 100) 
+            {
+                VidaManager.PerderVida();
+                position = new Vector2(100, 90); 
+                velocity = Vector2.Zero;
+            }
+
+            ActualizarCollider();
+
         }
 
         /// <summary>

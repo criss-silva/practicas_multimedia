@@ -168,7 +168,7 @@ public class GameOverScene : IScene
         CollisionManager.Clear();
         VidaManager.Resetear();
 
-        GameScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);
+        IScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);        
         nivel1.LoadContent();
         _sceneManager.AddScene(nivel1);
     }

@@ -5,22 +5,19 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
-using System.Data.SqlTypes;
 
 namespace capybara;
 
 /// <summary>
-/// Segunda escena de juego jugable. Carga y gestiona el nivel 2 a partir
-/// de su archivo CSV, controla al personaje, detecta colisiones con tiles
-/// especiales y gestiona las transiciones al nivel 3, a la pantalla de
-/// victoria o a la pantalla de game over según el estado del <see cref="VidaManager"/>.
+/// Tercera y última escena de juego jugable. Carga y gestiona el nivel 3 a partir
+/// de su archivo CSV, controla al personaje, gestiona un enemigo volador activo
+/// y detecta colisiones con tiles especiales. Al alcanzar el tile de victoria
+/// lanza la pantalla de <see cref="WinScene"/>; al agotar las vidas, la de
+/// <see cref="GameOverScene"/>.
 /// Implementa <see cref="IScene"/> para integrarse con el <see cref="SceneManager"/>.
 /// </summary>
-public class GameScene2 : IScene
+public class GameScene3_M2 : IScene
 {
-    /// <summary>Referencia al gestor de escenas para poder apilar nuevas escenas.</summary>
-    private SceneManager _sceneManager;
-
     /// <summary>
     /// Diccionario que representa el tilemap del nivel. La clave es la posición
     /// del tile en coordenadas de cuadrícula (columna, fila) y el valor es el
@@ -53,6 +50,15 @@ public class GameScene2 : IScene
     /// </summary>
     private Texture2D pixel;
 
+    /// <summary>
+    /// Enemigo volador presente en el nivel 3. Persigue al jugador una vez
+    /// que este entra en su radio de detección y le inflige daño al contacto.
+    /// </summary>
+    private Enemigo enemigo;
+
+    /// <summary>Referencia al gestor de escenas para poder apilar nuevas escenas.</summary>
+    private SceneManager _sceneManager;
+
     /// <summary>Factor de escala visual aplicado al sprite del personaje.</summary>
     private float escala = 1.0f;
 
@@ -77,16 +83,15 @@ public class GameScene2 : IScene
     /// </summary>Variable dedicada a la textura del fondo
     private Texture2D _fondo;
 
-
     /// <summary>
-    /// Inicializa una nueva instancia de <see cref="GameScene2"/>.
+    /// Inicializa una nueva instancia de <see cref="GameScene3_M2"/>.
     /// Se suscribe a los eventos de <see cref="VidaManager"/> para reaccionar
     /// ante la pérdida de vida (respawn) y el game over.
     /// </summary>
     /// <param name="sm">Gestor de escenas del juego.</param>
     /// <param name="content">Gestor de contenido para la carga de assets.</param>
     /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
-    public GameScene2(SceneManager sm, ContentManager content, GraphicsDevice gd)
+    public GameScene3_M2(SceneManager sm, ContentManager content, GraphicsDevice gd)
     {
         _sceneManager = sm;
         this.Content = content;
@@ -97,44 +102,16 @@ public class GameScene2 : IScene
     }
 
     /// <summary>
-    /// Callback suscrito a <see cref="VidaManager.OnPerderVida"/>.
-    /// Reposiciona al personaje en el punto de spawn inicial del nivel
-    /// y anula su velocidad para evitar que continúe con la inercia anterior.
-    /// </summary>
-    private void Respawn()
-    {
-        personaje.position = new Vector2(100, 90);
-        personaje.velocity = Vector2.Zero;
-    }
-
-    /// <summary>
-    /// Callback suscrito a <see cref="VidaManager.OnGameOver"/>.
-    /// Se desuscribe de ambos eventos del <see cref="VidaManager"/> para evitar
-    /// referencias colgadas, limpia el <see cref="CollisionManager"/> y apila
-    /// la escena <see cref="GameOverScene"/> en el <see cref="SceneManager"/>.
-    /// </summary>
-    private void GameOver()
-    {
-    VidaManager.OnPerderVida -= Respawn;
-    VidaManager.OnGameOver -= GameOver;
-
-    SaveManager.BorrarSave(); 
-
-    CollisionManager.Clear();
-    GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
-    gameOver.LoadContent();
-    _sceneManager.AddScene(gameOver);
-    }
-
-    /// <summary>
-    /// Carga todos los recursos del nivel 2: tilemap desde CSV,fondo del nivel, tilesheet,
-    /// sprites del personaje y sus animaciones. Registra los colisionadores
-    /// del personaje y de todos los tiles sólidos en el <see cref="CollisionManager"/>.
+    /// Carga todos los recursos del nivel 3: tilemap desde CSV, fondo del nivel, tilesheet,
+    /// sprites del personaje, sus animaciones y el enemigo volador. Limpia el
+    /// <see cref="CollisionManager"/> al inicio para evitar colisionadores residuales
+    /// de escenas anteriores y registra los colisionadores del personaje, el enemigo
+    /// y todos los tiles sólidos.
     /// <para>
     /// Tiles excluidos de la generación de colisionadores:
     /// <list type="bullet">
     ///   <item><description>18 — tile decorativo sin colisión física.</description></item>
-    ///   <item><description>99 — tile de meta (trigger de transición al nivel 3).</description></item>
+    ///   <item><description>99 — reservado; no se usa en este nivel.</description></item>
     ///   <item><description>50 — tile de muerte (trigger de pérdida de vida).</description></item>
     ///   <item><description>100 — tile de victoria (trigger de transición a <see cref="WinScene"/>).</description></item>
     /// </list>
@@ -142,16 +119,23 @@ public class GameScene2 : IScene
     /// </summary>
     public void LoadContent()
     {
-        tilemap = CargarMapa("Content/nivel2.csv");
-        _fondo = Content.Load<Texture2D>("fondo_nivel1");
-        textureAtlas = Content.Load<Texture2D>("tilesheet");
+        CollisionManager.Clear();
+
+        tilemap = CargarMapa("Content/nivel3.csv");
+        _fondo = Content.Load<Texture2D>("fondo_mundo_2");
+        textureAtlas = Content.Load<Texture2D>("tilesheet_mundo2");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
         personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida);
         sprites = new List<Sprite> { personaje };
 
+        enemigo = new Enemigo(Content.Load<Texture2D>("enemigo1"), new Vector2(800, 250), 0.1f, 2);
+        enemigo.Collider.Owner = "enemy";
+        enemigo.SetDebugMode(false);
+
         CollisionManager.AddCollider(personaje.Collider);
+        CollisionManager.AddCollider(enemigo.Collider);
 
         texturas = new()
         {
@@ -198,12 +182,12 @@ public class GameScene2 : IScene
     /// <summary>
     /// Actualiza la lógica del nivel cada frame: sincroniza el colisionador del
     /// personaje con su posición visual, actualiza el <see cref="CollisionManager"/>,
-    /// procesa la entrada del jugador y comprueba colisiones con tiles especiales.
+    /// procesa la entrada del jugador, actualiza el enemigo y comprueba colisiones
+    /// con tiles especiales.
     /// <para>
     /// Tiles especiales gestionados:
     /// <list type="bullet">
-    ///   <item><description>50 — al tocarlo se invoca <see cref="VidaManager.PerderVida"/>.</description></item>
-    ///   <item><description>99 — al tocarlo se limpia el <see cref="CollisionManager"/> y se carga <see cref="GameScene3"/>.</description></item>
+    ///   <item><description>50 — al tocarlo se invoca <see cref="VidaManager.PerderVida"/> y se resetea la posición del enemigo.</description></item>
     ///   <item><description>100 — al tocarlo se desuscriben los eventos, se limpia el <see cref="CollisionManager"/> y se carga <see cref="WinScene"/>.</description></item>
     /// </list>
     /// </para>
@@ -220,14 +204,7 @@ public class GameScene2 : IScene
 
         CollisionManager.Update();
         personaje.Update(tecladoActual, teclaanterior, gravedad, fuerza, gameTime);
-
-        List<Sprite> killist = new();
-        foreach (var sprite in sprites)
-        {
-            if (sprite != personaje && sprite is ScaledSprite escalado && escalado.Rect.Intersects(personaje.Rect))
-                killist.Add(sprite);
-        }
-        foreach (var sprite in killist) sprites.Remove(sprite);
+        enemigo.Update(gameTime, personaje, tilemap);
 
         int tileSize = 60;
         foreach (var item in tilemap)
@@ -242,36 +219,17 @@ public class GameScene2 : IScene
                 if (personaje.Rect.Intersects(tileKill))
                 {
                     VidaManager.PerderVida();
+                    enemigo.ResetearPosicion();
                     break;
-                }
-            }
-
-            if (item.Value == 99)
-            {
-                Rectangle tileMeta = new Rectangle(
-                    (int)item.Key.X * tileSize,
-                    (int)item.Key.Y * tileSize,
-                    tileSize, tileSize);
-
-                if (personaje.Rect.Intersects(tileMeta))
-                {
-                    VidaManager.OnPerderVida -= Respawn;
-                    VidaManager.OnGameOver -= GameOver;
-
-                    CollisionManager.Clear();
-                    GameScene3 nivel3 = new GameScene3(_sceneManager, Content, _graphicsDevice);
-                    nivel3.LoadContent();
-                    _sceneManager.AddScene(nivel3);
-                    return;
                 }
             }
 
             if (item.Value == 100)
             {
                 Rectangle tileWin = new Rectangle(
-                    (int)item.Key.X * 60,
-                    (int)item.Key.Y * 60,
-                    60, 60);
+                    (int)item.Key.X * tileSize,
+                    (int)item.Key.Y * tileSize,
+                    tileSize, tileSize);
 
                 if (personaje.Rect.Intersects(tileWin))
                 {
@@ -292,23 +250,26 @@ public class GameScene2 : IScene
 
     /// <summary>
     /// Dibuja todos los elementos visuales del nivel en el orden correcto:
-    /// Primero el fondo completo, seguido los tiles del tilemap (omitiendo los tiles especiales sin textura),
-    /// luego el personaje con su animación activa (normal, burbuja o salida de burbuja)
-    /// y finalmente el bounding box de depuración en rojo semitransparente.
+    /// Primero el fondo del nivel, seguido los tiles del tilemap (omitiendo los tiles especiales sin textura),
+    /// luego el enemigo, después el personaje con su animación activa (normal,
+    /// burbuja o salida de burbuja) y finalmente el bounding box de depuración
+    /// en rojo semitransparente.
     /// </summary>
     /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
     public void Draw(SpriteBatch spriteBatch)
     {
         int tileSize = 60;
         spriteBatch.Draw(_fondo, new Rectangle(0, 0, 1280, 720), Color.White);
-        
+
         foreach (var item in tilemap)
         {
-            if (item.Value == 99 || item.Value == 50 || item.Value == 100 || item.Value==18) continue;
+            if (item.Value == 99 || item.Value == 50 || item.Value == 100 || item.Value == 18) continue;
 
             Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
+
+        enemigo.Draw(spriteBatch);
 
         if (personaje.EnEstadoS || personaje.SaliendoDeS)
         {
@@ -340,7 +301,7 @@ public class GameScene2 : IScene
     /// Cada fila del CSV corresponde a una fila de tiles y cada valor separado
     /// por coma a una columna. Solo se almacenan los tiles con valor mayor que 0.
     /// </summary>
-    /// <param name="ruta">Ruta relativa al archivo CSV del nivel (p. ej. "Content/nivel2.csv").</param>
+    /// <param name="ruta">Ruta relativa al archivo CSV del nivel (p. ej. "Content/nivel3.csv").</param>
     /// <returns>
     /// Diccionario donde la clave es la posición en cuadrícula <c>(columna, fila)</c>
     /// y el valor es el identificador numérico del tile. Devuelve un diccionario
@@ -365,12 +326,45 @@ public class GameScene2 : IScene
         }
         return resultado;
     }
+
     /// <summary>
-/// Aplica la posición guardada al personaje tras cargar el nivel.
-/// Se llama desde EscenaSeleccionada al continuar una partida.
-/// </summary>
-public void AplicarPosicionGuardada(float x, float y)
-{
-    personaje.position = new Vector2(x, y);
-}
+    /// Callback suscrito a <see cref="VidaManager.OnPerderVida"/>.
+    /// Reposiciona al personaje en el punto de spawn inicial del nivel,
+    /// anula su velocidad para evitar inercia residual y resetea la posición
+    /// del enemigo a su punto de spawn original.
+    /// </summary>
+    private void Respawn()
+    {
+        personaje.position = new Vector2(100, 90);
+        personaje.velocity = Vector2.Zero;
+        enemigo.ResetearPosicion();
+    }
+
+    /// <summary>
+    /// Callback suscrito a <see cref="VidaManager.OnGameOver"/>.
+    /// Se desuscribe de ambos eventos del <see cref="VidaManager"/> para evitar
+    /// referencias colgadas, limpia el <see cref="CollisionManager"/> y apila
+    /// la escena <see cref="GameOverScene"/> en el <see cref="SceneManager"/>.
+    /// </summary>
+    private void GameOver()
+    {
+    VidaManager.OnPerderVida -= Respawn;
+    VidaManager.OnGameOver -= GameOver;
+
+    SaveManager.BorrarSave(); 
+
+    CollisionManager.Clear();
+    GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
+    gameOver.LoadContent();
+    _sceneManager.AddScene(gameOver);
+    }
+        /// <summary>
+    /// Aplica la posición guardada al personaje tras cargar el nivel.
+    /// Se llama desde EscenaSeleccionada al continuar una partida.
+    /// </summary>
+    public void AplicarPosicionGuardada(float x, float y)
+    {
+        personaje.position = new Vector2(x, y);
+        enemigo.ResetearPosicion();
+    }
 }

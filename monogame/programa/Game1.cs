@@ -107,7 +107,7 @@ public class Game1 : Game
 
                 sceneManager.RemoveScene(); 
             }
-            else if (escenaActual is GameScene || escenaActual is GameScene2 || escenaActual is GameScene3)
+            else if (escenaActual is GameScene_M2 || escenaActual is GameScene2_M2 || escenaActual is GameScene3_M2)
             {
                 
                 EscenaPausa pausa = new EscenaPausa(sceneManager, Content, GraphicsDevice); 
@@ -128,8 +128,8 @@ public class Game1 : Game
     /// <summary>
     /// Ciclo de renderizado del juego. Se ejecuta una vez por frame tras <see cref="Update"/>.
     /// Limpia el buffer con el color de fondo, dibuja la escena activa y, únicamente
-    /// si la escena actual es una escena de juego (<see cref="GameScene"/>,
-    /// <see cref="GameScene2"/> o <see cref="GameScene3"/>), dibuja el <see cref="HUD"/>
+    /// si la escena actual es una escena de juego (<see cref="GameScene_M2"/>,
+    /// <see cref="GameScene2_M2"/> o <see cref="GameScene3_M2"/>), dibuja el <see cref="HUD"/>
     /// por encima. El HUD no se muestra en menús ni en pantallas de victoria o derrota.
     /// </summary>
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
@@ -143,7 +143,7 @@ public class Game1 : Game
         sceneManager.sceneaActual()?.Draw(_spriteBatch);
 
         IScene escenaActual = sceneManager.sceneaActual();
-        if (escenaActual is GameScene || escenaActual is GameScene2 || escenaActual is GameScene3)
+        if (escenaActual is GameScene|| escenaActual is GameScene2 || escenaActual is GameScene3||escenaActual is GameScene_M2 || escenaActual is GameScene2_M2 || escenaActual is GameScene3_M2)
         {
             _hud.Draw(_spriteBatch);
         }

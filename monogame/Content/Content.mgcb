@@ -217,6 +217,18 @@
 /processorParam:TextureFormat=Color
 /build:fondo_burbuja.png
 
+#begin fondo_mundo_2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:fondo_mundo_2.png
+
 #begin fondo_nivel1.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -276,6 +288,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:personaje_basico.png
+
+#begin tilesheet_mundo2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:tilesheet_mundo2.png
 
 #begin tilesheet.png
 /importer:TextureImporter

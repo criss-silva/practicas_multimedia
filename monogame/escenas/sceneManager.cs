@@ -17,7 +17,7 @@ namespace capybara
     /// Flujo de navegación del juego:
     /// <list type="bullet">
     ///   <item><description>Inicio: <see cref="MenuScene"/> se apila en <see cref="Game1.LoadContent"/>.</description></item>
-    ///   <item><description>Al jugar: se apila <see cref="GameScene"/> sobre el menú.</description></item>
+    ///   <item><description>Al jugar: se apila <see cref="GameScene_M2"/> sobre el menú.</description></item>
     ///   <item><description>Al avanzar de nivel: se apila la siguiente <c>GameScene</c>.</description></item>
     ///   <item><description>Al ganar o perder: se apila <see cref="WinScene"/> o <see cref="GameOverScene"/>.</description></item>
     ///   <item><description>Al volver al menú: se desapilan todas las escenas hasta dejar solo <see cref="MenuScene"/>.</description></item>

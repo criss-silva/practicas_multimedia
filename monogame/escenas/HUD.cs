@@ -8,8 +8,8 @@ namespace capybara;
 /// Heads-Up Display del juego. Muestra en pantalla el número de vidas
 /// restantes del jugador mediante sprites específicos para cada estado.
 /// Se dibuja por encima de la escena activa y solo es visible durante
-/// las escenas de juego (<see cref="GameScene"/>, <see cref="GameScene2"/>,
-/// <see cref="GameScene3"/>), controlado desde <see cref="Game1"/>.
+/// las escenas de juego (<see cref="GameScene_M2"/>, <see cref="GameScene2_M2"/>,
+/// <see cref="GameScene3_M2"/>), controlado desde <see cref="Game1"/>.
 /// </summary>
 public class HUD
 {

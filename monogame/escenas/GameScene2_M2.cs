@@ -16,7 +16,7 @@ namespace capybara;
 /// victoria o a la pantalla de game over según el estado del <see cref="VidaManager"/>.
 /// Implementa <see cref="IScene"/> para integrarse con el <see cref="SceneManager"/>.
 /// </summary>
-public class GameScene2 : IScene
+public class GameScene2_M2 : IScene
 {
     /// <summary>Referencia al gestor de escenas para poder apilar nuevas escenas.</summary>
     private SceneManager _sceneManager;
@@ -79,14 +79,14 @@ public class GameScene2 : IScene
 
 
     /// <summary>
-    /// Inicializa una nueva instancia de <see cref="GameScene2"/>.
+    /// Inicializa una nueva instancia de <see cref="GameScene2_M2"/>.
     /// Se suscribe a los eventos de <see cref="VidaManager"/> para reaccionar
     /// ante la pérdida de vida (respawn) y el game over.
     /// </summary>
     /// <param name="sm">Gestor de escenas del juego.</param>
     /// <param name="content">Gestor de contenido para la carga de assets.</param>
     /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
-    public GameScene2(SceneManager sm, ContentManager content, GraphicsDevice gd)
+    public GameScene2_M2(SceneManager sm, ContentManager content, GraphicsDevice gd)
     {
         _sceneManager = sm;
         this.Content = content;
@@ -143,8 +143,8 @@ public class GameScene2 : IScene
     public void LoadContent()
     {
         tilemap = CargarMapa("Content/nivel2.csv");
-        _fondo = Content.Load<Texture2D>("fondo_nivel1");
-        textureAtlas = Content.Load<Texture2D>("tilesheet");
+        _fondo = Content.Load<Texture2D>("fondo_mundo_2");
+        textureAtlas = Content.Load<Texture2D>("tilesheet_mundo2");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
@@ -203,7 +203,7 @@ public class GameScene2 : IScene
     /// Tiles especiales gestionados:
     /// <list type="bullet">
     ///   <item><description>50 — al tocarlo se invoca <see cref="VidaManager.PerderVida"/>.</description></item>
-    ///   <item><description>99 — al tocarlo se limpia el <see cref="CollisionManager"/> y se carga <see cref="GameScene3"/>.</description></item>
+    ///   <item><description>99 — al tocarlo se limpia el <see cref="CollisionManager"/> y se carga <see cref="GameScene3_M2"/>.</description></item>
     ///   <item><description>100 — al tocarlo se desuscriben los eventos, se limpia el <see cref="CollisionManager"/> y se carga <see cref="WinScene"/>.</description></item>
     /// </list>
     /// </para>
@@ -259,7 +259,7 @@ public class GameScene2 : IScene
                     VidaManager.OnGameOver -= GameOver;
 
                     CollisionManager.Clear();
-                    GameScene3 nivel3 = new GameScene3(_sceneManager, Content, _graphicsDevice);
+                    GameScene3_M2 nivel3 = new GameScene3_M2(_sceneManager, Content, _graphicsDevice);
                     nivel3.LoadContent();
                     _sceneManager.AddScene(nivel3);
                     return;

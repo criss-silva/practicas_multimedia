@@ -29,6 +29,9 @@ namespace capybara
         /// </summary>
         private Rectangle _rect;
 
+        /// <summary>Rectángulo de detección usado para depuración visual.</summary>
+        public Rectangle Rect => _rect;
+
         /// <summary>Indica si el jugador ya ha tocado este checkpoint.</summary>
         private bool _activado = false;
 

@@ -125,7 +125,7 @@ namespace capybara
         /// Actualiza la lógica del menú cada frame. Detecta si el jugador pulsa
         /// el botón de jugar mediante la comparación del estado actual y anterior
         /// del ratón para garantizar una única pulsación por click. Al confirmar
-        /// la pulsación, crea y apila una nueva instancia de <see cref="GameScene"/>.
+        /// la pulsación, crea y apila una nueva instancia de <see cref="GameScene_M2"/>.
         /// </summary>
         /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
        public void Update(GameTime gameTime)

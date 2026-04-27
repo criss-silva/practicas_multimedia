@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
-using System.Runtime.CompilerServices;
 
 namespace capybara
 {
@@ -12,7 +11,6 @@ namespace capybara
         private ContentManager _content;
         private GraphicsDevice _graphicsDevice;
         private Texture2D _pixel;
-        private bool _ratonSoltado = false;
 
         private AnimacionFondo _animacionfondo;
 
@@ -32,15 +30,12 @@ namespace capybara
             _content = content;
             _graphicsDevice = gd;
             _animacionfondo = animacionfondo;
-            
 
-            // Start — derecha
-            _rectStart = new Rectangle(850, 260, 200, 200);
-            // Continue — izquierda
-            _rectContinue = new Rectangle(230, 260, 200, 200);
+            // CAMBIO 1: rectángulos más grandes y mejor posicionados
+            _rectStart = new Rectangle(720, 210, 400, 300);
+            _rectContinue = new Rectangle(160, 210, 400, 300);
 
             _haySave = SaveManager.ExisteSave();
-
             _colorContinue = _haySave ? Color.Blue : Color.Gray;
         }
 
@@ -50,25 +45,25 @@ namespace capybara
             _pixel.SetData(new[] { Color.White });
             startTexture = _content.Load<Texture2D>("boton_nuevo_juego");
             continueTexture = _content.Load<Texture2D>("boton_continuar");
-
         }
 
         public void Update(GameTime gameTime)
         {
+            // CAMBIO 2: actualizar _haySave cada frame
+            _haySave = SaveManager.ExisteSave();
+
             _animacionfondo.Update(gameTime);
             MouseState mouseActual = Mouse.GetState();
             Point mousePos = new Point(mouseActual.X, mouseActual.Y);
 
-            if (mouseActual.LeftButton == ButtonState.Released)
-            {
-                _ratonSoltado = true; 
-            }
+            // Botón Start
             if (_rectStart.Contains(mousePos))
             {
                 _colorStart = Color.LightGreen;
                 if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
                 {
                     SaveManager.BorrarSave();
+                    CollisionManager.Clear(); // CAMBIO 3: limpiar colisionadores residuales
                     GameScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);
                     nivel1.LoadContent();
                     _sceneManager.AddScene(nivel1);
@@ -77,62 +72,38 @@ namespace capybara
             }
             else _colorStart = Color.Green;
 
-            // LÓGICA ACTUALIZADA: Hover y click en Continue
+            // Botón Continue
             if (_rectContinue.Contains(mousePos))
             {
                 if (_haySave)
                 {
-                    // Hover cuando el botón está activo
-                    _colorContinue = Color.LightBlue; 
-
-                    // Clic en Continue
+                    _colorContinue = Color.LightBlue;
+                    // CAMBIO 4: llamar a ContinuarPartida en vez del código duplicado
                     if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
                     {
-                        SaveManager.Historial datos = SaveManager.Cargar();
-                        
-                        if (datos != null)
-                        {
-                            // AQUÍ CARGAS LA ESCENA
-                            GameScene nivelCargado = new GameScene(_sceneManager, _content, _graphicsDevice);
-                            
-                            // Nota: Necesitarás un método en GameScene para pasarle los datos cargados.
-                            // Por ejemplo: nivelCargado.CargarDesdeSave(datos.Nivel, datos.PosX, datos.PosY);
-                            
-                            nivelCargado.LoadContent();
-                            _sceneManager.AddScene(nivelCargado);
-                        }
+                        ContinuarPartida();
                     }
                 }
                 else
                 {
-                    // Hover cuando el botón está inactivo (sin partida)
                     _colorContinue = Color.DimGray;
                 }
             }
             else
             {
-                // Estado normal del botón fuera del hover
                 _colorContinue = _haySave ? Color.Blue : Color.Gray;
             }
 
             _mouseAnterior = mouseActual;
         }
 
-            
-
-            
-           
         public void Draw(SpriteBatch spriteBatch)
         {
-
-          
             _animacionfondo.Draw(spriteBatch, new Rectangle(0, 0, 1280, 720));
-            
             spriteBatch.Draw(startTexture, _rectStart, Color.White);
-
-            
             spriteBatch.Draw(continueTexture, _rectContinue, Color.White);
         }
+
         private void ContinuarPartida()
         {
             var save = SaveManager.Cargar();
@@ -143,15 +114,23 @@ namespace capybara
                 1 => new GameScene(_sceneManager, _content, _graphicsDevice),
                 2 => new GameScene2(_sceneManager, _content, _graphicsDevice),
                 3 => new GameScene3(_sceneManager, _content, _graphicsDevice),
+                
+                4 => new GameScene_M2(_sceneManager, _content, _graphicsDevice),
+                5 => new GameScene2_M2(_sceneManager, _content, _graphicsDevice),
+                6 => new GameScene3_M2(_sceneManager, _content, _graphicsDevice),
+
                 _ => new GameScene(_sceneManager, _content, _graphicsDevice)
             };
 
-            nivel.LoadContent(); // primero carga todo
+            CollisionManager.Clear(); // CAMBIO 5: limpiar antes de cargar
+            nivel.LoadContent();
 
-            // luego sobreescribe la posición — este orden es correcto
             if (nivel is GameScene gs) gs.AplicarPosicionGuardada(save.PosX, save.PosY);
             else if (nivel is GameScene2 gs2) gs2.AplicarPosicionGuardada(save.PosX, save.PosY);
             else if (nivel is GameScene3 gs3) gs3.AplicarPosicionGuardada(save.PosX, save.PosY);
+            else if (nivel is GameScene_M2 gsm2) gsm2.AplicarPosicionGuardada(save.PosX, save.PosY);
+            else if (nivel is GameScene2_M2 gs2m2) gs2m2.AplicarPosicionGuardada(save.PosX, save.PosY);
+            else if (nivel is GameScene3_M2 gs3m3) gs3m3.AplicarPosicionGuardada(save.PosX, save.PosY);
 
             _sceneManager.AddScene(nivel);
         }

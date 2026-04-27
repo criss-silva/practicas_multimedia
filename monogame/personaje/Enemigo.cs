@@ -217,7 +217,7 @@ internal class Enemigo : ScaledSprite
             jugador.Collider.Width,
             jugador.Collider.Height
         );
-        hurtboxJ.Inflate(-15, -10);
+        hurtboxJ.Inflate(-5, -5);
 
         if (hurtboxM.Intersects(hurtboxJ))
         {
@@ -447,4 +447,9 @@ internal class Enemigo : ScaledSprite
 
     /// <summary>Indica si el modo debug está habilitado (acceso de solo lectura).</summary>
     public bool DebugMode => _debugMode;
+    /// <summary>Resetea el estado de detección para que el enemigo vuelva a idle tras un respawn.</summary>
+    public void ResetearDeteccion()
+    {
+        _hasEnteredDeteccion = false;
+    }
 }

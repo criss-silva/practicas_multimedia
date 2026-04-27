@@ -21,15 +21,19 @@
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/columna_spritesheet.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/enemigo1.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo_burbuja.png</File>
+    <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo_mundo_2.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo_nivel1.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/fondo.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/movimiento_capibara.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/nombre_juego.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/personaje_basico.png</File>
+    <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/tilesheet_mundo2.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/tilesheet.png</File>
     <File>C:/Users/crist/Desktop/uni/multimedia/practicas_multimedia/monogame/Content/vidas.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

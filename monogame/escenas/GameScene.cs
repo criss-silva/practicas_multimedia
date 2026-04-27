@@ -194,7 +194,7 @@ public class GameScene : IScene
                 CollisionManager.AddCollider(bloque);
             }
         }
-        columna = new objetos(Content.Load<Texture2D>("columna_spritesheet"), new Vector2(210, 185), 2.0f, 12);
+        columna = new objetos(Content.Load<Texture2D>("columna_spritesheet"), new Vector2(210, 185), 2.0f, 12, nivel : 1);
         Texture2D texCaminar = Content.Load<Texture2D>("movimiento_capibara");
         personaje.TexCaminar = texCaminar;
         personaje.TotalFramesCaminar = 4;
@@ -214,7 +214,7 @@ public class GameScene : IScene
     /// Tiles especiales gestionados:
     /// <list type="bullet">
     ///   <item><description>50 — al tocarlo se invoca <see cref="VidaManager.PerderVida"/>.</description></item>
-    ///   <item><description>99 — al tocarlo se limpia el <see cref="CollisionManager"/> y se carga <see cref="GameScene2"/>.</description></item>
+    ///   <item><description>99 — al tocarlo se limpia el <see cref="CollisionManager"/> y se carga <see cref="GameScene2_M2"/>.</description></item>
     /// </list>
     /// </para>
     /// </summary>
@@ -311,7 +311,17 @@ public class GameScene : IScene
             Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
-        _checkpoint?.Draw(spriteBatch);
+       spriteBatch.Draw(pixel, columna.RectDeteccion, Color.Blue * 0.4f);
+        if (_checkpoint != null)
+{
+    // dibuja el área de detección en azul semitransparente
+    spriteBatch.Draw(pixel, new Rectangle(
+        (int)_checkpoint.Rect.X,
+        (int)_checkpoint.Rect.Y,
+        _checkpoint.Rect.Width,
+        _checkpoint.Rect.Height),
+        Color.Blue * 0.4f);
+}
         columna.Draw(spriteBatch); 
 
         if (personaje.EnEstadoS || personaje.SaliendoDeS)
@@ -417,6 +427,8 @@ public class GameScene : IScene
     {
         VidaManager.OnPerderVida -= Respawn;
         VidaManager.OnGameOver -= GameOver;
+
+        SaveManager.BorrarSave();
 
         CollisionManager.Clear();
         GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);

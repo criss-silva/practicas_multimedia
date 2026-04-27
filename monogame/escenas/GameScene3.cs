@@ -243,6 +243,25 @@ public class GameScene3 : IScene
                     return;
                 }
             }
+            if (item.Value == 99)
+            {
+                Rectangle tileMeta = new Rectangle(
+                    (int)item.Key.X * tileSize,
+                    (int)item.Key.Y * tileSize,
+                    tileSize, tileSize);
+
+                if (personaje.Rect.Intersects(tileMeta))
+                {
+                    VidaManager.OnPerderVida -= Respawn;
+                    VidaManager.OnGameOver -= GameOver;
+
+                    CollisionManager.Clear();
+                    GameScene_M2 mundo2 = new GameScene_M2(_sceneManager, Content, _graphicsDevice);
+                    mundo2.LoadContent();
+                    _sceneManager.AddScene(mundo2);
+                    return;
+                }
+            }
         }
 
         teclaanterior = tecladoActual;
@@ -338,6 +357,7 @@ public class GameScene3 : IScene
         personaje.position = new Vector2(100, 90);
         personaje.velocity = Vector2.Zero;
         enemigo.ResetearPosicion();
+        enemigo.ResetearDeteccion();
     }
 
     /// <summary>
@@ -348,13 +368,15 @@ public class GameScene3 : IScene
     /// </summary>
     private void GameOver()
     {
-        VidaManager.OnPerderVida -= Respawn;
-        VidaManager.OnGameOver -= GameOver;
+    VidaManager.OnPerderVida -= Respawn;
+    VidaManager.OnGameOver -= GameOver;
 
-        CollisionManager.Clear();
-        GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
-        gameOver.LoadContent();
-        _sceneManager.AddScene(gameOver);
+    SaveManager.BorrarSave(); 
+
+    CollisionManager.Clear();
+    GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
+    gameOver.LoadContent();
+    _sceneManager.AddScene(gameOver);
     }
         /// <summary>
     /// Aplica la posición guardada al personaje tras cargar el nivel.

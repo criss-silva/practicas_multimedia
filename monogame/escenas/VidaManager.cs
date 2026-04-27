@@ -7,8 +7,8 @@ namespace capybara;
 /// Al ser estático no requiere instanciación; todas sus operaciones se
 /// invocan directamente sobre la clase.
 /// <para>
-/// Las escenas de juego (<see cref="GameScene"/>, <see cref="GameScene2"/>,
-/// <see cref="GameScene3"/>) se suscriben a <see cref="OnPerderVida"/> y
+/// Las escenas de juego (<see cref="GameScene_M2"/>, <see cref="GameScene2_M2"/>,
+/// <see cref="GameScene3_M2"/>) se suscriben a <see cref="OnPerderVida"/> y
 /// <see cref="OnGameOver"/> en su constructor y se desuscriben antes de
 /// abandonar la escena para evitar referencias colgadas.
 /// </para>
