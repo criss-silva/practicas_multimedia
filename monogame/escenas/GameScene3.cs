@@ -231,6 +231,33 @@ public class GameScene3 : IScene
                     (int)item.Key.Y * tileSize,
                     tileSize, tileSize);
 
+                // ¡PRIMERO comprobamos si el jugador toca la meta!
+                if (personaje.Rect.Intersects(tileWin))
+                {
+                    // Limpieza obligatoria antes de cambiar de escena
+                    VidaManager.OnPerderVida -= Respawn;
+                    VidaManager.OnGameOver -= GameOver;
+                    CollisionManager.Clear();
+
+                    // SEGUNDO decidimos a qué pantalla vamos
+                    if (ModoJuego.EsSeleccionDeMundo) 
+                    {
+                        // MODO SELECCIÓN: Vamos a la nueva pantalla de "Fin de Mundo"
+                        // Fíjate que usamos 'Content' (con mayúscula)
+                        var finMundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
+                        finMundo.LoadContent();
+                        _sceneManager.AddScene(finMundo);
+                    }
+                    else
+                    {
+                        // MODO SECUENCIAL: Vamos al Mundo 2
+                        var mundo2 = new GameScene_M2(_sceneManager, Content, _graphicsDevice);
+                        mundo2.LoadContent();
+                        _sceneManager.AddScene(mundo2);
+                    }
+                    return;
+                }
+
                 if (personaje.Rect.Intersects(tileWin))
                 {
                     VidaManager.OnPerderVida -= Respawn;

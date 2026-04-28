@@ -24,6 +24,7 @@ namespace capybara
         private MouseState _mouseAnterior;
         private bool _haySave;
 
+
         public EscenaSeleccionada(SceneManager sm, ContentManager content, GraphicsDevice gd, AnimacionFondo animacionfondo)
         {
             _sceneManager = sm;
@@ -62,6 +63,7 @@ namespace capybara
                 _colorStart = Color.LightGreen;
                 if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
                 {
+                    ModoJuego.EsSeleccionDeMundo = false;
                     SaveManager.BorrarSave();
                     CollisionManager.Clear(); // CAMBIO 3: limpiar colisionadores residuales
                     GameScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);
@@ -71,7 +73,7 @@ namespace capybara
                 }
             }
             else _colorStart = Color.Green;
-
+           
             // Botón Continue
             if (_rectContinue.Contains(mousePos))
             {

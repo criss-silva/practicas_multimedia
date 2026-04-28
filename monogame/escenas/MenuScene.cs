@@ -28,6 +28,8 @@ namespace capybara
         /// <summary>Textura del botón de jugar.</summary>
         private Texture2D boton_jugar;
 
+        private Texture2D _botonSeleccionMundos;
+
         /// <summary>Textura del botón de ajustes.</summary>
         private Texture2D boton_ajustes;
 
@@ -55,6 +57,8 @@ namespace capybara
         /// <summary>Rectángulo de destino donde se dibuja el nombre o logotipo del juego.</summary>
         private Rectangle rect_nombre;
 
+        private Rectangle _rectSeleccionMundos;
+
         /// <summary>
         /// Área de clic activa del botón de jugar. Es más pequeña que <see cref="rect_jugar"/>
         /// y está centrada sobre la zona interactiva real del botón para mayor precisión.
@@ -67,11 +71,15 @@ namespace capybara
         /// </summary>
         private Rectangle col_ajustes;
 
+        private Rectangle _colSeleccionMundos;
+
         /// <summary>
         /// Estado del ratón en el frame anterior. Se usa para detectar pulsaciones únicas
         /// (pressed + released) y evitar que mantener el botón pulsado apile múltiples escenas.
         /// </summary>
         private MouseState _mouseAnterior;
+
+
 
         /// <summary>
         /// Inicializa una nueva instancia de <see cref="MenuScene"/>.
@@ -90,20 +98,26 @@ namespace capybara
             int anchoBoton = 600;
             int altoBoton = 300;
             int xCentrada = 330;
+            int altoClic = 100;
             rect_jugar = new Rectangle(xCentrada, 220, anchoBoton, altoBoton);
             rect_ajustes = new Rectangle(xCentrada, 375, anchoBoton, altoBoton);
 
-            // El área de clic es más estrecha que el sprite del botón para que
-            // solo la zona central interactiva responda al ratón.
-            int altoClic = 100;
+            // Botón Jugar — arriba
+            rect_jugar = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
             col_jugar = new Rectangle(xCentrada, rect_jugar.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
+
+            // Botón Selección Mundos — en medio
+            _rectSeleccionMundos = new Rectangle(xCentrada, 270, anchoBoton, altoBoton);
+            _colSeleccionMundos = new Rectangle(xCentrada, _rectSeleccionMundos.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
+
+            // Botón Ajustes — abajo
+            rect_ajustes = new Rectangle(xCentrada, 440, anchoBoton, altoBoton);
             col_ajustes = new Rectangle(xCentrada, rect_ajustes.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
 
             int anchoNombre = 800;
-            int altoNombre = 600;
+            int altoNombre = 400;
             int xNombreCentrada = (1280 - anchoNombre) / 2;
-            int yNombre = rect_jugar.Y - altoNombre + 300;
-            rect_nombre = new Rectangle(xNombreCentrada, yNombre, anchoNombre, altoNombre);
+            rect_nombre = new Rectangle(xNombreCentrada, -50, anchoNombre, altoNombre);
 
             _mouseAnterior = Mouse.GetState();
         }
@@ -119,6 +133,7 @@ namespace capybara
             _nombreJuego = _content.Load<Texture2D>("nombre_juego");
             boton_jugar = _content.Load<Texture2D>("boton_jugar");
             boton_ajustes = _content.Load<Texture2D>("boton_ajustes");
+            _botonSeleccionMundos = _content.Load<Texture2D>("boton_seleccion_mundos");
         }
 
         /// <summary>
@@ -134,11 +149,28 @@ namespace capybara
             MouseState mouseActual = Mouse.GetState();
             Point mousePos = new Point(mouseActual.X, mouseActual.Y);
 
-            if (col_jugar.Contains(mousePos) && mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
+            bool clic = mouseActual.LeftButton == ButtonState.Pressed 
+                     && _mouseAnterior.LeftButton == ButtonState.Released;
+
+            if (clic)
             {
-                EscenaSeleccionada seleccion = new EscenaSeleccionada(_sceneManager, _content, _graphicsDevice, _animacionFondo);
-                seleccion.LoadContent();
-                _sceneManager.AddScene(seleccion);
+                if (col_jugar.Contains(mousePos))
+                {
+                    ModoJuego.EsSeleccionDeMundo = false;
+                    EscenaSeleccionada seleccion = new EscenaSeleccionada(
+                        _sceneManager, _content, _graphicsDevice, _animacionFondo);
+                    seleccion.LoadContent();
+                    _sceneManager.AddScene(seleccion);
+                }
+                else if (_colSeleccionMundos.Contains(mousePos))
+                {
+                    ModoJuego.EsSeleccionDeMundo = true;
+                    CollisionManager.Clear();
+                    EscenaSeleccionMundo seleccionMundo = new EscenaSeleccionMundo(
+                        _sceneManager, _content, _graphicsDevice, _animacionFondo);
+                    seleccionMundo.LoadContent();
+                    _sceneManager.AddScene(seleccionMundo);
+                }
             }
 
             _mouseAnterior = mouseActual;
@@ -158,6 +190,10 @@ namespace capybara
 
             Color colorJugar = col_jugar.Contains(Mouse.GetState().Position) ? Color.LightGray : Color.White;
             spriteBatch.Draw(boton_jugar, rect_jugar, colorJugar);
+
+            Color colorSeleccion = _colSeleccionMundos.Contains(Mouse.GetState().Position) 
+                ? Color.LightGray : Color.White;
+            spriteBatch.Draw(_botonSeleccionMundos, _rectSeleccionMundos, colorSeleccion);
 
             Color colorSalir = col_ajustes.Contains(Mouse.GetState().Position) ? Color.LightGray : Color.White;
             spriteBatch.Draw(boton_ajustes, rect_ajustes, colorSalir);
