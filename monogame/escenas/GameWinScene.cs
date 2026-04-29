@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
-
+using Microsoft.Xna.Framework.Media;
 namespace capybara;
 
 /// <summary>
@@ -106,6 +106,11 @@ public class WinScene : IScene
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     public void Update(GameTime gameTime)
     {
+
+          if (MediaPlayer.State == MediaState.Playing)
+            {
+              MediaPlayer.Stop();
+            }
         MouseState mouseState = Mouse.GetState();
         Point mousePosition = new Point(mouseState.X, mouseState.Y);
 

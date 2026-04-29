@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Media;
 
 namespace capybara
 {
@@ -78,6 +79,7 @@ namespace capybara
         /// (pressed + released) y evitar que mantener el botón pulsado apile múltiples escenas.
         /// </summary>
         private MouseState _mouseAnterior;
+        private Song musicaFondo;
 
 
 
@@ -134,6 +136,11 @@ namespace capybara
             boton_jugar = _content.Load<Texture2D>("boton_jugar");
             boton_ajustes = _content.Load<Texture2D>("boton_ajustes");
             _botonSeleccionMundos = _content.Load<Texture2D>("boton_seleccion_mundos");
+            musicaFondo = _content.Load<Song>("musica_menu");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(musicaFondo);
+            MediaPlayer.Volume = 0.3f;
+             
         }
 
         /// <summary>
@@ -145,9 +152,17 @@ namespace capybara
         /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
        public void Update(GameTime gameTime)
         {
+            
             _animacionFondo.Update(gameTime);
             MouseState mouseActual = Mouse.GetState();
             Point mousePos = new Point(mouseActual.X, mouseActual.Y);
+            if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musicaFondo)
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Volume = 0.3f;
+                MediaPlayer.Play(musicaFondo);
+            }
+           
 
             bool clic = mouseActual.LeftButton == ButtonState.Pressed 
                      && _mouseAnterior.LeftButton == ButtonState.Released;

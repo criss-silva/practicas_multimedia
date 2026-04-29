@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 
 namespace capybara
 {
@@ -96,7 +98,18 @@ namespace capybara
         /// el desplazamiento visual producido por el cambio de <see cref="SpriteEffects"/>.
         /// </summary>
         private float offsetCompensacionGiro = 20f;
+/// <summary>
+/// Efecto de sonido que se reproduce al saltar. Se asigna desde el constructor y se reproduce cada vez que el jugador inicia un salto (siempre que no supere el límite).
+/// </summary>
+        private SoundEffect _sonidoSalto;
 
+        /// <summary>
+        /// sonido de burbuja que se reproduce al activar el escudo de burbuja. Se asigna desde el constructor y se reproduce cada vez que el jugador activa el escudo (presiona S).
+        /// </summary>
+        private SoundEffect _sonidoburbuja;
+
+
+        private SoundEffect _sonidofueraburbuja;
         /// <summary>
         /// Inicializa una nueva instancia de <see cref="MovedSprite"/>.
         /// Crea el <see cref="BoxCollider"/> inicial de 70×70 px y lo etiqueta
@@ -120,12 +133,15 @@ namespace capybara
             
             public bool EstaCaminando => Math.Abs(velocity.X) > 0.1f;
             public MovedSprite(Texture2D texture, Vector2 position, float scale, float speed,
-                           Texture2D texEspecial, Texture2D texSalida)
+                           Texture2D texEspecial, Texture2D texSalida, SoundEffect sonidoSalto, SoundEffect sonidoBurbuja, SoundEffect sonidoFueraburbuja)
             : base(texture, position, scale)
         {
             this.speed = speed;
             this.TexEspecial = texEspecial;
             this.TexSalida = texSalida;
+            this._sonidoSalto = sonidoSalto;
+            this._sonidoburbuja = sonidoBurbuja;
+            this._sonidofueraburbuja = sonidoFueraburbuja;
             this.velocity = Vector2.Zero;
             if (Collider == null)
             {
@@ -163,11 +179,14 @@ namespace capybara
                 _timerS = 0f;
                 FrameActualS = 0;
                 CollisionManager.IgnorePlayerEnemyCollisions = true;
+                _sonidoburbuja.Play(1.0f, 0f, 0f);
             }
 
             
             if (EnEstadoS)
             {
+
+                
                 _timerS += dt;
                 velocity.X = 0;
 
@@ -185,6 +204,7 @@ namespace capybara
                     SaliendoDeS = true;
                     FrameActualS = 0;
                     CollisionManager.IgnorePlayerEnemyCollisions = false;
+                     _sonidofueraburbuja.Play(0.5f, 0f, 0f);
                 }
 
                 AplicarFisicasYColisiones(gravedad);
@@ -194,6 +214,7 @@ namespace capybara
             
             if (SaliendoDeS)
             {
+               
                 velocity.X = 0;
                 _timerAnimacion += dt;
                 if (_timerAnimacion >= 0.088f)
@@ -242,6 +263,7 @@ namespace capybara
             {
                 saltos++;
                 velocity.Y = fuerza;
+                _sonidoSalto.Play(0.1f, 0f, 0f);
             }
 
             AplicarFisicasYColisiones(gravedad);
@@ -310,7 +332,7 @@ namespace capybara
                 position.X = oldPosX;
                 ActualizarCollider();
             }
-                   
+                    
             if (position.X < 0) position.X = 0;
             if (position.X > 1280) position.X = 1280;
 

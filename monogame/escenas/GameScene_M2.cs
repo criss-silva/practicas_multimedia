@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
 
 namespace capybara;
 
@@ -99,6 +101,8 @@ public class GameScene_M2 : IScene
     /// <param name="sm">Gestor de escenas del juego.</param>
     /// <param name="content">Gestor de contenido para la carga de assets.</param>
     /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
+    /// 
+    private Song musica_nivel;
     public GameScene_M2(SceneManager sm, ContentManager content, GraphicsDevice gd, float? posX = null, float? posY = null)
     {
         _sceneManager = sm;
@@ -151,7 +155,10 @@ public class GameScene_M2 : IScene
             // Si no hay guardado (partida nueva), usamos la posición inicial por defecto
             posicionInicial = new Vector2(100, 90); 
         }
-        personaje = new MovedSprite(texturecapibara, posicionInicial, escala, velocidad, texAnimacion, texSalida);
+         SoundEffect sonidoSalto = Content.Load<SoundEffect>("sonido_salto");
+        SoundEffect sonidoBurbuja = Content.Load<SoundEffect>("sonido_entrar_burbuja");
+        SoundEffect sonidoFueraburbuja = Content.Load<SoundEffect>("sonido_salir_burbuja");
+        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida,sonidoSalto, sonidoBurbuja, sonidoFueraburbuja);
         sprites = new List<Sprite> { personaje };
 
         CollisionManager.AddCollider(personaje.Collider);
@@ -204,6 +211,10 @@ public class GameScene_M2 : IScene
 
         _texturaPanel = new Texture2D(_graphicsDevice, 1, 1);
         _texturaPanel.SetData(new[] { Color.Gray * 0.9f }); 
+        musica_nivel = Content.Load<Song>("musica_niveles");
+
+
+
     }
 
     /// <summary>
@@ -223,6 +234,15 @@ public class GameScene_M2 : IScene
     {
         _checkpoint?.Update(gameTime, personaje);
         KeyboardState tecladoActual = Keyboard.GetState();
+
+        
+         if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Volume = 0.5f;
+                MediaPlayer.Play(musica_nivel);
+            }
+
 
         if (_mostrarInstrucciones)
         {

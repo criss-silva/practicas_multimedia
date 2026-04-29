@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace capybara{
-public class EscenaFinMundo : IScene 
+public class EscenaEntreNiveles : IScene 
 {
     private SceneManager _sceneManager;
     private ContentManager _content;
@@ -24,7 +24,7 @@ public class EscenaFinMundo : IScene
 
     private MouseState _estadoRatonAnterior;
 
-    public EscenaFinMundo(SceneManager sceneManager, ContentManager content, GraphicsDevice graphicsDevice)
+    public EscenaEntreNiveles(SceneManager sceneManager, ContentManager content, GraphicsDevice graphicsDevice)
     {
         _sceneManager = sceneManager;
         _content = content;

@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace capybara;
 
@@ -60,6 +61,11 @@ internal class EscenaPausa : IScene
     public void Update(GameTime gameTime)
     {
         MouseState estadoRatonActual = Mouse.GetState();
+
+          if (MediaPlayer.State == MediaState.Playing)
+            {
+              MediaPlayer.Stop();
+            }
         
         
         Rectangle ratonRect = new Rectangle(estadoRatonActual.X, estadoRatonActual.Y, 1, 1);

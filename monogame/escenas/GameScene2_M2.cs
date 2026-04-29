@@ -6,7 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using System.Data.SqlTypes;
-
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
 namespace capybara;
 
 /// <summary>
@@ -76,6 +77,8 @@ public class GameScene2_M2 : IScene
 
     /// </summary>Variable dedicada a la textura del fondo
     private Texture2D _fondo;
+
+    private Song musica_nivel;
 
 
     /// <summary>
@@ -148,7 +151,11 @@ public class GameScene2_M2 : IScene
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
-        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida);
+        SoundEffect sonidoSalto = Content.Load<SoundEffect>("sonido_salto");
+        SoundEffect sonidoBurbuja = Content.Load<SoundEffect>("sonido_entrar_burbuja");
+        SoundEffect sonidoFueraburbuja = Content.Load<SoundEffect>("sonido_salir_burbuja");
+        musica_nivel = Content.Load<Song>("musica_niveles");
+        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida,sonidoSalto, sonidoBurbuja, sonidoFueraburbuja);
         sprites = new List<Sprite> { personaje };
 
         CollisionManager.AddCollider(personaje.Collider);
@@ -193,6 +200,8 @@ public class GameScene2_M2 : IScene
 
         pixel = new Texture2D(_graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
+
+
     }
 
     /// <summary>
@@ -212,6 +221,14 @@ public class GameScene2_M2 : IScene
     public void Update(GameTime gameTime)
     {
         KeyboardState tecladoActual = Keyboard.GetState();
+
+        
+         if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Volume = 0.5f;
+                MediaPlayer.Play(musica_nivel);
+            }
 
         Rectangle playerRect = personaje.Rect;
         personaje.Collider.Position = new Vector2(playerRect.X, playerRect.Y);

@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
 
 namespace capybara;
 
@@ -91,6 +93,9 @@ public class GameScene3 : IScene
     /// <param name="sm">Gestor de escenas del juego.</param>
     /// <param name="content">Gestor de contenido para la carga de assets.</param>
     /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
+    /// 
+    /// 
+    private Song musica_nivel;
     public GameScene3(SceneManager sm, ContentManager content, GraphicsDevice gd)
     {
         _sceneManager = sm;
@@ -127,7 +132,10 @@ public class GameScene3 : IScene
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
-        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida);
+        SoundEffect sonidoSalto = Content.Load<SoundEffect>("sonido_salto");
+        SoundEffect sonidoBurbuja = Content.Load<SoundEffect>("sonido_entrar_burbuja");
+        SoundEffect sonidoFueraburbuja = Content.Load<SoundEffect>("sonido_salir_burbuja");
+        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida,sonidoSalto, sonidoBurbuja, sonidoFueraburbuja);
         sprites = new List<Sprite> { personaje };
 
         enemigo = new Enemigo(Content.Load<Texture2D>("enemigo1"), new Vector2(800, 250), 0.1f, 2);
@@ -177,6 +185,8 @@ public class GameScene3 : IScene
 
         pixel = new Texture2D(_graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
+
+        musica_nivel = Content.Load<Song>("musica_niveles");
     }
 
     /// <summary>
@@ -196,6 +206,15 @@ public class GameScene3 : IScene
     public void Update(GameTime gameTime)
     {
         KeyboardState tecladoActual = Keyboard.GetState();
+
+        
+         if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Volume = 0.5f;
+                MediaPlayer.Play(musica_nivel);
+            }
+
 
         Rectangle playerRect = personaje.Rect;
         personaje.Collider.Position = new Vector2(playerRect.X, playerRect.Y);
@@ -231,30 +250,16 @@ public class GameScene3 : IScene
                     (int)item.Key.Y * tileSize,
                     tileSize, tileSize);
 
-                // ¡PRIMERO comprobamos si el jugador toca la meta!
                 if (personaje.Rect.Intersects(tileWin))
                 {
                     // Limpieza obligatoria antes de cambiar de escena
                     VidaManager.OnPerderVida -= Respawn;
                     VidaManager.OnGameOver -= GameOver;
-                    CollisionManager.Clear();
-
-                    // SEGUNDO decidimos a qué pantalla vamos
-                    if (ModoJuego.EsSeleccionDeMundo) 
-                    {
-                        // MODO SELECCIÓN: Vamos a la nueva pantalla de "Fin de Mundo"
-                        // Fíjate que usamos 'Content' (con mayúscula)
-                        var finMundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
-                        finMundo.LoadContent();
-                        _sceneManager.AddScene(finMundo);
-                    }
-                    else
-                    {
-                        // MODO SECUENCIAL: Vamos al Mundo 2
-                        var mundo2 = new GameScene_M2(_sceneManager, Content, _graphicsDevice);
-                        mundo2.LoadContent();
-                        _sceneManager.AddScene(mundo2);
-                    }
+                    CollisionManager.Clear(); 
+                    var mundo2 = new GameScene_M2(_sceneManager, Content, _graphicsDevice);
+                    mundo2.LoadContent();
+                    _sceneManager.AddScene(mundo2);
+                    
                     return;
                 }
 
@@ -283,9 +288,9 @@ public class GameScene3 : IScene
                     VidaManager.OnGameOver -= GameOver;
 
                     CollisionManager.Clear();
-                    GameScene_M2 mundo2 = new GameScene_M2(_sceneManager, Content, _graphicsDevice);
-                    mundo2.LoadContent();
-                    _sceneManager.AddScene(mundo2);
+                   var finmundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
+                    finmundo.LoadContent();
+                    _sceneManager.AddScene(finmundo);
                     return;
                 }
             }
