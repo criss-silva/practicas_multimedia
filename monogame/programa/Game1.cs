@@ -107,7 +107,7 @@ public class Game1 : Game
 
                 sceneManager.RemoveScene(); 
             }
-            else if (escenaActual is GameScene_M2 || escenaActual is GameScene2_M2 || escenaActual is GameScene3_M2)
+            else if (escenaActual is GameScene_M2 || escenaActual is GameScene2_M2 || escenaActual is GameScene3_M2|| escenaActual is GameScene || escenaActual is GameScene2 || escenaActual is GameScene3)
             {
                 
                 EscenaPausa pausa = new EscenaPausa(sceneManager, Content, GraphicsDevice); 

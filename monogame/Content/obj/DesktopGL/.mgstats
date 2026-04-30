@@ -1,3 +1,2 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"c:/juego/practicas_multimedia/monogame/Content/sonido_entrar_burbuja.mp3","c:/juego/practicas_multimedia/monogame/Content/bin/DesktopGL/sonido_entrar_burbuja.xnb","SongProcessor","SongContent",32111,139,0,2756868
-"c:/juego/practicas_multimedia/monogame/Content/sonido_salir_burbuja.mp3","c:/juego/practicas_multimedia/monogame/Content/bin/DesktopGL/sonido_salir_burbuja.xnb","SongProcessor","SongContent",5153,138,0,1429322
+"c:/juego/practicas_multimedia/monogame/Content/volumen.png","c:/juego/practicas_multimedia/monogame/Content/bin/DesktopGL/volumen.xnb","TextureProcessor","Texture2DContent",43136,8000085,0,2995368

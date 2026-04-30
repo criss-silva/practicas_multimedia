@@ -252,7 +252,7 @@ public class GameScene3 : IScene
 
                 if (personaje.Rect.Intersects(tileWin))
                 {
-                    // Limpieza obligatoria antes de cambiar de escena
+                    
                     VidaManager.OnPerderVida -= Respawn;
                     VidaManager.OnGameOver -= GameOver;
                     CollisionManager.Clear(); 

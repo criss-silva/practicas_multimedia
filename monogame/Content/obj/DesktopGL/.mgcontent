@@ -10,6 +10,7 @@
     <File>c:/juego/practicas_multimedia/monogame/Content/animacion_ganar.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/animacion_perder.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/animacion_romper_burbuja.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/bajar_volumen.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/boton_ajustes.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/boton_continuar.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/boton_jugar.png</File>
@@ -34,11 +35,16 @@
     <File>c:/juego/practicas_multimedia/monogame/Content/sonido_entrar_burbuja.mp3</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/sonido_salir_burbuja.mp3</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/sonido_salto.mp3</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/subir_volumen.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/tilesheet_mundo2.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/tilesheet.png</File>
     <File>c:/juego/practicas_multimedia/monogame/Content/vidas.png</File>
+    <File>c:/juego/practicas_multimedia/monogame/Content/volumen.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

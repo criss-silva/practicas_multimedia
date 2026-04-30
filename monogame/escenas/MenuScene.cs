@@ -101,8 +101,7 @@ namespace capybara
             int altoBoton = 300;
             int xCentrada = 330;
             int altoClic = 100;
-            rect_jugar = new Rectangle(xCentrada, 220, anchoBoton, altoBoton);
-            rect_ajustes = new Rectangle(xCentrada, 375, anchoBoton, altoBoton);
+            
 
             // Botón Jugar — arriba
             rect_jugar = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
@@ -185,7 +184,13 @@ namespace capybara
                         _sceneManager, _content, _graphicsDevice, _animacionFondo);
                     seleccionMundo.LoadContent();
                     _sceneManager.AddScene(seleccionMundo);
-                }
+                } else if
+                (col_ajustes.Contains(mousePos))
+                    {
+                        SettingsScene ajustes = new SettingsScene(_sceneManager, _content, _graphicsDevice);
+                        ajustes.LoadContent();
+                        _sceneManager.AddScene(ajustes);
+                    }
             }
 
             _mouseAnterior = mouseActual;

@@ -109,7 +109,7 @@ public class GameScene_M2 : IScene
         this.Content = content;
         this._graphicsDevice = gd;
 
-        // Guardamos las coordenadas del checkpoint si existen
+    
         _spawnX = posX;
         _spawnY = posY;
 
@@ -142,17 +142,17 @@ public class GameScene_M2 : IScene
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
+        _texturaPanel = Content.Load<Texture2D>("instrucciones");
 
 
         Vector2 posicionInicial;
         if (_spawnX.HasValue && _spawnY.HasValue)
         {
-            // Si tenemos valores en los campos que guardamos en el constructor, los usamos
+          
             posicionInicial = new Vector2(_spawnX.Value, _spawnY.Value);
         }
         else
         {
-            // Si no hay guardado (partida nueva), usamos la posición inicial por defecto
             posicionInicial = new Vector2(100, 90); 
         }
          SoundEffect sonidoSalto = Content.Load<SoundEffect>("sonido_salto");
@@ -209,8 +209,7 @@ public class GameScene_M2 : IScene
         pixel = new Texture2D(_graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        _texturaPanel = new Texture2D(_graphicsDevice, 1, 1);
-        _texturaPanel.SetData(new[] { Color.Gray * 0.9f }); 
+       
         musica_nivel = Content.Load<Song>("musica_niveles");
 
 
@@ -334,7 +333,7 @@ public class GameScene_M2 : IScene
        spriteBatch.Draw(pixel, columna.RectDeteccion, Color.Blue * 0.4f);
         if (_checkpoint != null)
 {
-    // dibuja el área de detección en azul semitransparente
+
     spriteBatch.Draw(pixel, new Rectangle(
         (int)_checkpoint.Rect.X,
         (int)_checkpoint.Rect.Y,
