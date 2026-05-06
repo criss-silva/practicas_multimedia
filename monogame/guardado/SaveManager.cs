@@ -5,14 +5,22 @@ namespace capybara
 {
     /// <summary>
     /// Gestor estático del sistema de guardado local del juego.
-    /// Persiste el progreso del jugador en un archivo JSON en el directorio
-    /// de la aplicación, almacenando el nivel y la posición del último
-    /// checkpoint activado. Al ser estático no requiere instanciación.
+    /// Usa archivos JSON separados para el modo secuencial y el modo selección
+    /// de mundos, evitando que los saves de un modo interfieran con el otro.
     /// </summary>
     public static class SaveManager
     {
-        /// <summary>Ruta relativa al archivo JSON de guardado.</summary>
-        private static string _rutaGuardado = "historial.json";
+        /// <summary>Ruta del archivo de guardado del modo secuencial (botón Play).</summary>
+        private static string _rutaSecuencial = "historial.json";
+
+        /// <summary>Ruta del archivo de guardado del modo selección de mundos.</summary>
+        private static string _rutaMundos = "historial_mundos.json";
+
+        /// <summary>
+        /// Devuelve la ruta correcta según el modo de juego activo.
+        /// </summary>
+        private static string RutaActual =>
+            ModoJuego.EsSeleccionDeMundo ? _rutaMundos : _rutaSecuencial;
 
         /// <summary>
         /// Modelo de datos que representa el estado guardado del jugador.
@@ -20,7 +28,7 @@ namespace capybara
         /// </summary>
         public class Historial
         {
-            /// <summary>Número del nivel en el que se activó el checkpoint (1, 2 o 3).</summary>
+            /// <summary>Número del nivel en el que se activó el checkpoint.</summary>
             public int Nivel { get; set; } = 1;
 
             /// <summary>Coordenada X del jugador en el momento de activar el checkpoint.</summary>
@@ -31,31 +39,33 @@ namespace capybara
         }
 
         /// <summary>
-        /// Comprueba si existe un archivo de guardado en disco.
-        /// Se usa en <see cref="EscenaSeleccionada"/> para decidir si mostrar
-        /// el botón de continuar activo o desactivado.
+        /// Comprueba si existe un archivo de guardado para el modo secuencial.
+        /// Solo el modo secuencial tiene botón "Continuar", por eso no se consulta
+        /// el modo mundos aquí.
         /// </summary>
-        /// <returns><c>true</c> si el archivo de guardado existe; <c>false</c> en caso contrario.</returns>
-        public static bool ExisteSave() => File.Exists(_rutaGuardado);
+        /// <returns><c>true</c> si el archivo de guardado secuencial existe.</returns>
+        public static bool ExisteSave() => File.Exists(_rutaSecuencial);
 
         /// <summary>
-        /// Serializa y escribe el progreso actual en el archivo JSON de guardado,
-        /// sobreescribiendo cualquier guardado anterior. Se invoca automáticamente
-        /// desde <see cref="Checkpoint.Update"/> al detectar contacto con el jugador.
+        /// Serializa y escribe el progreso en el archivo correspondiente al modo activo,
+        /// sobreescribiendo cualquier guardado anterior del mismo modo.
         /// </summary>
         /// <param name="nivel">Número del nivel activo en el momento del guardado.</param>
-        /// <param name="x">Coordenada X del jugador en el momento del guardado.</param>
-        /// <param name="y">Coordenada Y del jugador en el momento del guardado.</param>
+        /// <param name="x">Coordenada X del jugador.</param>
+        /// <param name="y">Coordenada Y del jugador.</param>
         public static void Guardar(int nivel, float x, float y)
         {
+            // En modo mundos no se guarda progreso para no interferir con el modo secuencial
+            if (ModoJuego.EsSeleccionDeMundo) return;
+
             Historial data = new Historial { Nivel = nivel, PosX = x, PosY = y };
             string json = JsonSerializer.Serialize(data);
-            File.WriteAllText(_rutaGuardado, json);
-            System.Diagnostics.Debug.WriteLine($"[SaveManager] Guardado en: {Path.GetFullPath(_rutaGuardado)}");
+            File.WriteAllText(_rutaSecuencial, json);
+            System.Diagnostics.Debug.WriteLine($"[SaveManager] Guardado nivel {nivel} en: {Path.GetFullPath(_rutaSecuencial)}");
         }
 
         /// <summary>
-        /// Lee y deserializa el archivo de guardado desde disco.
+        /// Lee y deserializa el archivo de guardado del modo secuencial.
         /// </summary>
         /// <returns>
         /// Instancia de <see cref="Historial"/> con el progreso guardado,
@@ -64,20 +74,18 @@ namespace capybara
         public static Historial Cargar()
         {
             if (!ExisteSave()) return null;
-            string json = File.ReadAllText(_rutaGuardado);
+            string json = File.ReadAllText(_rutaSecuencial);
             System.Diagnostics.Debug.WriteLine($"[SaveManager] Cargando save: {json}");
             return JsonSerializer.Deserialize<Historial>(json);
         }
 
         /// <summary>
-        /// Elimina el archivo de guardado del disco.
-        /// Debe llamarse al iniciar una partida nueva desde <see cref="EscenaSeleccionada"/>
-        /// para que el progreso anterior no interfiera con la nueva sesión.
-        /// No hace nada si el archivo no existe.
+        /// Elimina el archivo de guardado del modo secuencial.
+        /// Se llama al iniciar una partida nueva o al llegar a game over.
         /// </summary>
         public static void BorrarSave()
         {
-            if (ExisteSave()) File.Delete(_rutaGuardado);
+            if (ExisteSave()) File.Delete(_rutaSecuencial);
         }
     }
 }

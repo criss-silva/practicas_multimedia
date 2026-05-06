@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-
 namespace capybara;
 
 /// <summary>
@@ -30,49 +29,94 @@ public class GameOverScene : IScene
     /// </summary>
     private Texture2D _pixel;
 
-    /// <summary>Textura del botón de reinicio.</summary>
+    /// <summary>Textura del botón de reinicio de partida.</summary>
     private Texture2D _texReiniciar;
 
-    /// <summary>Textura del botón de regreso al menú.</summary>
+    /// <summary>Textura del botón de regreso al menú principal.</summary>
     private Texture2D _texMenu;
 
-    /// <summary>Rectángulo de posición y tamaño del botón de reinicio en pantalla.</summary>
+    /// <summary>
+    /// Rectángulo de posición y tamaño visual del botón de reinicio en pantalla.
+    /// Centrado horizontalmente a 200 píxeles desde el borde superior.
+    /// </summary>
     private Rectangle _rectReiniciar;
+
+    /// <summary>
+    /// Área de clic reducida del botón de reinicio, centrada verticalmente
+    /// sobre <see cref="_rectReiniciar"/> para mayor precisión de interacción.
+    /// </summary>
     private Rectangle colReiniciar;
 
-    /// <summary>Rectángulo de posición y tamaño del botón de menú en pantalla.</summary>
+    /// <summary>
+    /// Rectángulo de posición y tamaño visual del botón de menú en pantalla.
+    /// Centrado horizontalmente a 350 píxeles desde el borde superior.
+    /// </summary>
     private Rectangle _rectMenu;
+
+    /// <summary>
+    /// Área de clic reducida del botón de menú, centrada verticalmente
+    /// sobre <see cref="_rectMenu"/> para mayor precisión de interacción.
+    /// </summary>
     private Rectangle colMenu;
 
-
-    /// <summary>Color de tinte del botón de reinicio. Cambia a gris cuando el ratón pasa por encima.</summary>
+    /// <summary>
+    /// Color de tinte del botón de reinicio.
+    /// Cambia a <c>Color.Gray</c> al pasar el cursor por encima.
+    /// </summary>
     private Color _colorReiniciar = Color.White;
 
-    /// <summary>Color de tinte del botón de menú. Cambia a gris cuando el ratón pasa por encima.</summary>
+    /// <summary>
+    /// Color de tinte del botón de menú.
+    /// Cambia a <c>Color.Gray</c> al pasar el cursor por encima.
+    /// </summary>
     private Color _colorMenu = Color.White;
 
-    /// <summary>Color de tinte reservado para un posible botón de salida (actualmente sin uso activo).</summary>
+    /// <summary>
+    /// Color de tinte reservado para un posible botón de salida.
+    /// Actualmente declarado pero sin uso activo en la escena.
+    /// </summary>
     private Color _colorSalir = Color.White;
 
-    /// <summary>Sprite sheet con los frames de la animación de derrota.</summary>
+    /// <summary>
+    /// Sprite sheet con los frames de la animación de derrota dispuestos en una cuadrícula.
+    /// </summary>
     private Texture2D _spriteSheet;
 
-    /// <summary>Número de columnas (frames horizontales) del sprite sheet de derrota.</summary>
+    /// <summary>
+    /// Número de columnas del sprite sheet de derrota.
+    /// Determina el ancho de cada frame junto con el ancho total de la textura.
+    /// </summary>
     private int _columnas = 3;
 
-    /// <summary>Número de filas del sprite sheet de derrota.</summary>
+    /// <summary>
+    /// Número de filas del sprite sheet de derrota.
+    /// Determina el alto de cada frame junto con el alto total de la textura.
+    /// </summary>
     private int _filas = 1;
 
-    /// <summary>Índice del frame actualmente visible de la animación.</summary>
+    /// <summary>
+    /// Índice del frame actualmente visible de la animación de derrota.
+    /// Se incrementa cíclicamente de 0 a (<see cref="_columnas"/> × <see cref="_filas"/>) - 1.
+    /// </summary>
     private int _frameActual = 0;
 
-    /// <summary>Duración de cada frame de animación en segundos.</summary>
+    /// <summary>
+    /// Duración de cada frame de la animación de derrota en segundos.
+    /// A 0.15 segundos equivale a aproximadamente 6-7 fps.
+    /// </summary>
     private float _tiempoPorFrame = 0.15f;
 
-    /// <summary>Acumulador de tiempo para el avance de la animación.</summary>
+    /// <summary>
+    /// Acumulador de tiempo transcurrido desde el último cambio de frame.
+    /// Cuando supera <see cref="_tiempoPorFrame"/> se avanza al siguiente frame.
+    /// </summary>
     private float _cronometro = 0f;
 
-    /// <summary>Posición central en pantalla donde se dibuja la animación de derrota.</summary>
+    /// <summary>
+    /// Posición central en pantalla donde se dibuja la animación de derrota.
+    /// Se calcula en <see cref="LoadContent"/> tomando el centro de la pantalla
+    /// con un desplazamiento de +50 en X y -150 en Y.
+    /// </summary>
     private Vector2 _posAnimacion;
 
     /// <summary>
@@ -91,7 +135,8 @@ public class GameOverScene : IScene
     /// <summary>
     /// Carga todos los assets necesarios para la escena: textura de overlay,
     /// sprite sheet de animación y texturas de botones. Calcula los rectángulos
-    /// de posición de los botones centrados horizontalmente en pantalla.
+    /// de posición de los botones centrados horizontalmente en pantalla y sus
+    /// áreas de clic reducidas.
     /// </summary>
     public void LoadContent()
     {
@@ -101,6 +146,7 @@ public class GameOverScene : IScene
         _spriteSheet = _content.Load<Texture2D>("animacion_perder");
         _posAnimacion = new Vector2(1280 / 2 + 50, 720 / 2 - 150);
 
+        // Factores de escala para ajustar visualmente el tamaño de los botones
         float escala = 0.5f;
         float ajusteAncho = 0.7f;
         float ajusteAlto = 0.6f;
@@ -116,27 +162,29 @@ public class GameOverScene : IScene
         int altoM = (int)(_texMenu.Height * escala * ajusteAlto);
         _rectMenu = new Rectangle(1280 / 2 - (anchoM / 2), 350, anchoM, altoM);
 
-
-         int altoClic = 80;
+        // Las áreas de clic son más estrechas verticalmente para mayor precisión
+        int altoClic = 80;
         colReiniciar = new Rectangle(1280 / 2 - (anchoR / 2), _rectReiniciar.Y + (altoR / 2) - (altoClic / 2), anchoR, altoClic);
         colMenu = new Rectangle(1280 / 2 - (anchoM / 2), _rectMenu.Y + (altoM / 2) - (altoClic / 2), anchoM, altoClic);
     }
 
     /// <summary>
-    /// Actualiza la lógica de la escena cada frame: avanza la animación de derrota
-    /// y gestiona el efecto hover y la pulsación de los botones de reinicio y menú.
+    /// Actualiza la lógica de la escena cada frame: detiene la música si estuviera
+    /// sonando, avanza la animación de derrota y gestiona el hover y la pulsación
+    /// de los botones de reinicio y menú.
     /// </summary>
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     public void Update(GameTime gameTime)
     {
+        if (MediaPlayer.State == MediaState.Playing)
+        {
+            MediaPlayer.Stop();
+        }
 
-         if (MediaPlayer.State == MediaState.Playing)
-            {
-              MediaPlayer.Stop();
-            }
         MouseState mouse = Mouse.GetState();
         Point mousePos = new Point(mouse.X, mouse.Y);
 
+        // Avance de la animación de derrota
         _cronometro += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (_cronometro >= _tiempoPorFrame)
         {
@@ -144,6 +192,7 @@ public class GameOverScene : IScene
             _cronometro = 0f;
         }
 
+        // Hover y clic del botón de reinicio
         if (_rectReiniciar.Contains(mousePos))
         {
             _colorReiniciar = Color.Gray;
@@ -151,6 +200,7 @@ public class GameOverScene : IScene
         }
         else _colorReiniciar = Color.White;
 
+        // Hover y clic del botón de menú
         if (_rectMenu.Contains(mousePos))
         {
             _colorMenu = Color.Gray;
@@ -161,7 +211,7 @@ public class GameOverScene : IScene
 
     /// <summary>
     /// Reinicia la partida desde el nivel 1.
-    /// Limpia la pila de escenas hasta dejar solo el <see cref="MenuScene"/>,
+    /// Elimina de la pila todas las escenas hasta llegar al <see cref="MenuScene"/>,
     /// resetea el <see cref="CollisionManager"/> y el <see cref="VidaManager"/>,
     /// y apila una nueva instancia de <see cref="GameScene"/> con el contenido cargado.
     /// </summary>
@@ -175,15 +225,15 @@ public class GameOverScene : IScene
         CollisionManager.Clear();
         VidaManager.Resetear();
 
-        IScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);        
+        IScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);
         nivel1.LoadContent();
         _sceneManager.AddScene(nivel1);
     }
 
     /// <summary>
-    /// Regresa al menú principal.
-    /// Limpia la pila de escenas hasta dejar solo el <see cref="MenuScene"/>
-    /// y resetea el <see cref="CollisionManager"/> y el <see cref="VidaManager"/>.
+    /// Regresa al menú principal eliminando todas las escenas de la pila
+    /// hasta dejar únicamente el <see cref="MenuScene"/>.
+    /// Resetea también el <see cref="CollisionManager"/> y el <see cref="VidaManager"/>.
     /// </summary>
     private void IrAlMenu()
     {
@@ -197,21 +247,21 @@ public class GameOverScene : IScene
     /// <summary>
     /// Dibuja la escena de game over: overlay rojo semitransparente sobre toda la
     /// pantalla, los botones de acción con su tinte de hover y la animación de
-    /// derrota recortada del sprite sheet y centrada en pantalla.
+    /// derrota recortada del sprite sheet y centrada en pantalla con escala reducida.
     /// </summary>
     /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
     public void Draw(SpriteBatch spriteBatch)
     {
-
-
+        // Overlay rojo semitransparente sobre toda la pantalla
         spriteBatch.Draw(_pixel, new Rectangle(0, 0, 1280, 720), Color.Red * 0.7f);
-           
+
         Color colorReanudar = colReiniciar.Contains(Mouse.GetState().Position) ? Color.Gray : Color.White;
         Color colorMenu = colMenu.Contains(Mouse.GetState().Position) ? Color.Gray : Color.White;
 
         spriteBatch.Draw(_texReiniciar, _rectReiniciar, _colorReiniciar);
         spriteBatch.Draw(_texMenu, _rectMenu, _colorMenu);
 
+        // Recorte del frame actual del sprite sheet de derrota
         int w = _spriteSheet.Width / _columnas;
         int h = _spriteSheet.Height / _filas;
         Rectangle fuente = new Rectangle(
@@ -219,6 +269,7 @@ public class GameOverScene : IScene
             (_frameActual / _columnas) * h,
             w, h);
 
+        // Se dibuja centrado en _posAnimacion con escala 0.3 para no ocupar demasiada pantalla
         spriteBatch.Draw(_spriteSheet, _posAnimacion, fuente, Color.White, 0f,
             new Vector2(w / 2, h / 2), 0.3f, SpriteEffects.None, 0f);
     }

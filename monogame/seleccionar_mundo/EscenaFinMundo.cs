@@ -15,11 +15,11 @@ public class EscenaFinMundo : IScene
     private Texture2D _fondoLiso;
     
     
-    private Texture2D _texBotonContinuar;
+    private Texture2D _texBotonMundos;
     private Texture2D _texBotonMenu;
-    private Rectangle _rectContinuar;
+    private Rectangle _rectMundos;
     private Rectangle _rectMenu;
-    private Rectangle colContinuar;
+    private Rectangle colMundos;
     private Rectangle colMenu;
 
     private MouseState _estadoRatonAnterior;
@@ -37,20 +37,17 @@ public class EscenaFinMundo : IScene
         _fondoLiso = new Texture2D(_graphicsDevice, 1, 1);
         _fondoLiso.SetData(new[] { new Color(10, 10, 10, 180) }); 
 
-        _texBotonContinuar = _content.Load<Texture2D>("boton_continuar");
+        _texBotonMundos = _content.Load<Texture2D>("boton_seleccion_mundos");
         _texBotonMenu = _content.Load<Texture2D>("boton_menu");
 
-        int anchoPantalla = _graphicsDevice.Viewport.Width;
-        int altoPantalla = _graphicsDevice.Viewport.Height;
-        
         int anchoBoton = 700;
         int altoBoton = 350;
         int xCentrada = 290;
-        _rectContinuar = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
+        _rectMundos = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
         _rectMenu = new Rectangle(xCentrada, 300, anchoBoton, altoBoton);
 
-         int altoClic = 100;
-        colContinuar = new Rectangle(xCentrada, _rectContinuar.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
+        int altoClic = 100;
+        colMundos = new Rectangle(xCentrada, _rectMundos.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
         colMenu = new Rectangle(xCentrada, _rectMenu.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
 
             
@@ -75,27 +72,22 @@ public class EscenaFinMundo : IScene
 
         if (clicIzquierdo)
         {
-           
-            if (_rectContinuar.Intersects(ratonRect))
+            if (colMundos.Intersects(ratonRect))
             {
-              
-                 
-                GameScene_M2 mundo2 = new GameScene_M2(_sceneManager, _content, _graphicsDevice);
-                mundo2.LoadContent();
-                
-                
-                _sceneManager.AddScene(mundo2); 
-            } 
-           
-            else if (_rectMenu.Intersects(ratonRect))
+                // Volver a la pantalla de selección de mundos
+                while (_sceneManager.sceneaActual() is not MenuScene)
+                    _sceneManager.RemoveScene();
+
+                EscenaSeleccionMundo seleccionMundo = new EscenaSeleccionMundo(
+                    _sceneManager, _content, _graphicsDevice, null);
+                seleccionMundo.LoadContent();
+                _sceneManager.AddScene(seleccionMundo);
+            }
+            else if (colMenu.Intersects(ratonRect))
             {
-                
-                
-                MenuScene menu = new MenuScene(_sceneManager, _content, _graphicsDevice);
-                menu.LoadContent();
-                
-                
-                _sceneManager.AddScene(menu); 
+                // Volver al menú principal
+                while (_sceneManager.sceneaActual() is not MenuScene)
+                    _sceneManager.RemoveScene();
             }
         }
 
@@ -114,10 +106,10 @@ public class EscenaFinMundo : IScene
         Rectangle puntaRaton = new Rectangle(raton.X, raton.Y, 1, 1);
 
         
-        Color colorContinuar = colContinuar.Intersects(puntaRaton) ? Color.Gray : Color.White;
+        Color colorMundos = colMundos.Intersects(puntaRaton) ? Color.Gray : Color.White;
         Color colorMenu = colMenu.Intersects(puntaRaton) ? Color.Gray : Color.White;
 
-        spriteBatch.Draw(_texBotonContinuar, _rectContinuar, colorContinuar);
+        spriteBatch.Draw(_texBotonMundos, _rectMundos, colorMundos);
         spriteBatch.Draw(_texBotonMenu, _rectMenu, colorMenu);
     }
 }

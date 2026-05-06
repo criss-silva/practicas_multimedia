@@ -277,6 +277,13 @@
 /processorParam:TextureFormat=Color
 /build:fondo.png
 
+#begin Fuente.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fuente.spritefont
+
 #begin instrucciones.jpg
 /importer:TextureImporter
 /processor:TextureProcessor

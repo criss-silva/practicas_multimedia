@@ -29,6 +29,7 @@ namespace capybara
 
         private Texture2D _texvolumen;
         private Rectangle _rectVolumenDibujo;
+        private SpriteFont _fuente;
 
        public SettingsScene(SceneManager sceneManager, ContentManager content, GraphicsDevice graphicsDevice)
 {
@@ -86,6 +87,7 @@ namespace capybara
             _texBotonBajar = _content.Load<Texture2D>("bajar_volumen");
             _texBotonMenu = _content.Load<Texture2D>("boton_menu");
             _texvolumen = _content.Load<Texture2D>("volumen");
+            _fuente = _content.Load<SpriteFont>("Fuente");
 
             _volumenActual = MediaPlayer.Volume;
         }
@@ -132,6 +134,11 @@ namespace capybara
     spriteBatch.Draw(_texBotonBajar, _rectBajar, cBajar);
     spriteBatch.Draw(_texBotonSubir, _rectSubir, cSubir);
     spriteBatch.Draw(_texBotonMenu, _rectMenu, cMenu);
+
+    string texto = $"{(int)(_volumenActual * 100)}%";
+    Vector2 tamTexto = _fuente.MeasureString(texto);
+    Vector2 posTexto = new Vector2(1280 / 2 - tamTexto.X / 2, _rectMenu.Bottom + 20);
+    spriteBatch.DrawString(_fuente, texto, posTexto, Color.White);
 }
     }
 }

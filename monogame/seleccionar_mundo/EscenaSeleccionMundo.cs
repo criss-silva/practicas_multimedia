@@ -24,7 +24,7 @@ public class EscenaSeleccionMundo : IScene
     private Rectangle _rectVolver;
     private MouseState _mouseAnterior;
 
-    public EscenaSeleccionMundo(SceneManager sm, ContentManager content, GraphicsDevice gd, AnimacionFondo animacionfondo)
+    public EscenaSeleccionMundo(SceneManager sm, ContentManager content, GraphicsDevice gd, AnimacionFondo animacionfondo = null)
     {
         _sceneManager = sm;
         _content = content;
@@ -38,11 +38,11 @@ public class EscenaSeleccionMundo : IScene
 
     public void LoadContent()
     {
-        Texture2D sheetMenu = _content.Load<Texture2D>("fondo_burbuja");   
+        Texture2D sheetMenu = _content.Load<Texture2D>("fondo_burbuja");
         _pixel = new Texture2D(_graphicsDevice, 1, 1);
         _pixel.SetData(new[] { Color.White });
+        // Siempre se crea una instancia nueva para garantizar que no sea null
         _animacionFondo = new AnimacionFondo(sheetMenu, totalFrames: 16, fps: 7f);
-
     }
 
     public void Update(GameTime gameTime)

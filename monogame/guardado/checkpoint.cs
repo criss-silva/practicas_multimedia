@@ -99,7 +99,10 @@ namespace capybara
             if (!_activado && _rect.Intersects(jugador.Rect))
             {
                 _activado = true;
-                SaveManager.Guardar(_nivel, _posicion.X, _posicion.Y);
+                // Guardamos la posición del jugador (no la del checkpoint) con un pequeño
+                // offset hacia arriba para que el respawn nunca quede dentro de un tile.
+                const float offsetRespawnY = -5f;
+                SaveManager.Guardar(_nivel, jugador.position.X, jugador.position.Y + offsetRespawnY);
             }
 
             // La animación solo avanza tras la activación

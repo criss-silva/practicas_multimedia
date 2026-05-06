@@ -252,45 +252,24 @@ public class GameScene3 : IScene
 
                 if (personaje.Rect.Intersects(tileWin))
                 {
-                    
                     VidaManager.OnPerderVida -= Respawn;
                     VidaManager.OnGameOver -= GameOver;
-                    CollisionManager.Clear(); 
-                    var mundo2 = new GameScene_M2(_sceneManager, Content, _graphicsDevice);
-                    mundo2.LoadContent();
-                    _sceneManager.AddScene(mundo2);
-                    
-                    return;
-                }
-
-                if (personaje.Rect.Intersects(tileWin))
-                {
-                    VidaManager.OnPerderVida -= Respawn;
-                    VidaManager.OnGameOver -= GameOver;
-
                     CollisionManager.Clear();
-                    WinScene victoria = new WinScene(_sceneManager, Content, _graphicsDevice);
-                    victoria.LoadContent();
-                    _sceneManager.AddScene(victoria);
-                    return;
-                }
-            }
-            if (item.Value == 99)
-            {
-                Rectangle tileMeta = new Rectangle(
-                    (int)item.Key.X * tileSize,
-                    (int)item.Key.Y * tileSize,
-                    tileSize, tileSize);
 
-                if (personaje.Rect.Intersects(tileMeta))
-                {
-                    VidaManager.OnPerderVida -= Respawn;
-                    VidaManager.OnGameOver -= GameOver;
-
-                    CollisionManager.Clear();
-                   var finmundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
-                    finmundo.LoadContent();
-                    _sceneManager.AddScene(finmundo);
+                    if (ModoJuego.EsSeleccionDeMundo)
+                    {
+                        // MODO SELECCIÓN: pantalla de fin de mundo
+                        var finMundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
+                        finMundo.LoadContent();
+                        _sceneManager.AddScene(finMundo);
+                    }
+                    else
+                    {
+                        // MODO SECUENCIAL: pantalla de carga antes del Mundo 2
+                        var carga = new EscenaCarga(_sceneManager, Content, _graphicsDevice);
+                        carga.LoadContent();
+                        _sceneManager.AddScene(carga);
+                    }
                     return;
                 }
             }

@@ -148,6 +148,9 @@ public class WinScene : IScene
         while (_sceneManager.sceneaActual() is not MenuScene)
             _sceneManager.RemoveScene();
 
+        // Al completar el juego en modo secuencial se borra el save para que
+        // el botón Continuar quede desactivado y se pueda rejugar desde el inicio.
+        SaveManager.BorrarSave();
         CollisionManager.Clear();
         VidaManager.Resetear();
     }

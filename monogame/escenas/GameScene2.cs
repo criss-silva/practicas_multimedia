@@ -12,10 +12,11 @@ using Microsoft.Xna.Framework.Audio;
 namespace capybara;
 
 /// <summary>
-/// Segunda escena de juego jugable. Carga y gestiona el nivel 2 a partir
+/// Segunda escena de juego del Mundo 1. Carga y gestiona el nivel 2 a partir
 /// de su archivo CSV, controla al personaje, detecta colisiones con tiles
-/// especiales y gestiona las transiciones al nivel 3, a la pantalla de
-/// victoria o a la pantalla de game over según el estado del <see cref="VidaManager"/>.
+/// especiales y gestiona las transiciones al nivel 3 (<see cref="GameScene3"/>),
+/// a la pantalla de victoria (<see cref="WinScene"/>) o a game over según el
+/// estado del <see cref="VidaManager"/>.
 /// Implementa <see cref="IScene"/> para integrarse con el <see cref="SceneManager"/>.
 /// </summary>
 public class GameScene2 : IScene
@@ -50,8 +51,8 @@ public class GameScene2 : IScene
     private List<Sprite> sprites;
 
     /// <summary>
-    /// Textura de 1×1 píxel blanco usada para dibujar rectángulos de depuración
-    /// (bounding boxes) mediante escalado del rectángulo destino.
+    /// Textura de 1×1 píxel blanco usada para dibujar el bounding box de depuración
+    /// del personaje en rojo semitransparente.
     /// </summary>
     private Texture2D pixel;
 
@@ -76,21 +77,23 @@ public class GameScene2 : IScene
     /// <summary>Dispositivo gráfico necesario para crear texturas procedurales.</summary>
     private GraphicsDevice _graphicsDevice;
 
-    /// </summary>Variable dedicada a la textura del fondo
+    /// <summary>Textura de fondo del nivel 2 (comparte fondo con el nivel 1 del Mundo 1).</summary>
     private Texture2D _fondo;
 
+    /// <summary>
+    /// Canción de fondo que suena durante los niveles de juego.
+    /// Se reproduce en bucle desde <see cref="LoadContent"/>.
+    /// </summary>
+    private Song musica_nivel;
 
     /// <summary>
     /// Inicializa una nueva instancia de <see cref="GameScene2"/>.
-    /// Se suscribe a los eventos de <see cref="VidaManager"/> para reaccionar
-    /// ante la pérdida de vida (respawn) y el game over.
+    /// Suscribe los callbacks a los eventos del <see cref="VidaManager"/>
+    /// para reaccionar ante pérdida de vida y game over.
     /// </summary>
     /// <param name="sm">Gestor de escenas del juego.</param>
     /// <param name="content">Gestor de contenido para la carga de assets.</param>
     /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
-   
-    /// 
-    private Song musica_nivel;
     public GameScene2(SceneManager sm, ContentManager content, GraphicsDevice gd)
     {
         _sceneManager = sm;
@@ -104,7 +107,7 @@ public class GameScene2 : IScene
     /// <summary>
     /// Callback suscrito a <see cref="VidaManager.OnPerderVida"/>.
     /// Reposiciona al personaje en el punto de spawn inicial del nivel
-    /// y anula su velocidad para evitar que continúe con la inercia anterior.
+    /// y anula su velocidad para evitar inercia residual.
     /// </summary>
     private void Respawn()
     {
@@ -115,32 +118,32 @@ public class GameScene2 : IScene
     /// <summary>
     /// Callback suscrito a <see cref="VidaManager.OnGameOver"/>.
     /// Se desuscribe de ambos eventos del <see cref="VidaManager"/> para evitar
-    /// referencias colgadas, limpia el <see cref="CollisionManager"/> y apila
-    /// la escena <see cref="GameOverScene"/> en el <see cref="SceneManager"/>.
+    /// referencias colgadas, borra el guardado, limpia el <see cref="CollisionManager"/>
+    /// y apila la escena <see cref="GameOverScene"/>.
     /// </summary>
     private void GameOver()
     {
-    VidaManager.OnPerderVida -= Respawn;
-    VidaManager.OnGameOver -= GameOver;
+        VidaManager.OnPerderVida -= Respawn;
+        VidaManager.OnGameOver -= GameOver;
 
-    SaveManager.BorrarSave(); 
+        SaveManager.BorrarSave();
 
-    CollisionManager.Clear();
-    GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
-    gameOver.LoadContent();
-    _sceneManager.AddScene(gameOver);
+        CollisionManager.Clear();
+        GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
+        gameOver.LoadContent();
+        _sceneManager.AddScene(gameOver);
     }
 
     /// <summary>
-    /// Carga todos los recursos del nivel 2: tilemap desde CSV,fondo del nivel, tilesheet,
-    /// sprites del personaje y sus animaciones. Registra los colisionadores
-    /// del personaje y de todos los tiles sólidos en el <see cref="CollisionManager"/>.
+    /// Carga todos los recursos del nivel 2: tilemap desde CSV, fondo, tilesheet,
+    /// sprites del personaje y sus animaciones. Registra los colisionadores del
+    /// personaje y de todos los tiles sólidos en el <see cref="CollisionManager"/>.
     /// <para>
     /// Tiles excluidos de la generación de colisionadores:
     /// <list type="bullet">
     ///   <item><description>18 — tile decorativo sin colisión física.</description></item>
-    ///   <item><description>99 — tile de meta (trigger de transición al nivel 3).</description></item>
     ///   <item><description>50 — tile de muerte (trigger de pérdida de vida).</description></item>
+    ///   <item><description>99 — tile de meta (trigger de transición a <see cref="GameScene3"/>).</description></item>
     ///   <item><description>100 — tile de victoria (trigger de transición a <see cref="WinScene"/>).</description></item>
     /// </list>
     /// </para>
@@ -153,10 +156,12 @@ public class GameScene2 : IScene
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
-         SoundEffect sonidoSalto = Content.Load<SoundEffect>("sonido_salto");
+        SoundEffect sonidoSalto = Content.Load<SoundEffect>("sonido_salto");
         SoundEffect sonidoBurbuja = Content.Load<SoundEffect>("sonido_entrar_burbuja");
         SoundEffect sonidoFueraburbuja = Content.Load<SoundEffect>("sonido_salir_burbuja");
-        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida,sonidoSalto, sonidoBurbuja, sonidoFueraburbuja);
+
+        personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad,
+            texAnimacion, texSalida, sonidoSalto, sonidoBurbuja, sonidoFueraburbuja);
         sprites = new List<Sprite> { personaje };
 
         CollisionManager.AddCollider(personaje.Collider);
@@ -203,19 +208,18 @@ public class GameScene2 : IScene
         pixel.SetData(new[] { Color.White });
 
         musica_nivel = Content.Load<Song>("musica_niveles");
-
     }
 
     /// <summary>
     /// Actualiza la lógica del nivel cada frame: sincroniza el colisionador del
-    /// personaje con su posición visual, actualiza el <see cref="CollisionManager"/>,
-    /// procesa la entrada del jugador y comprueba colisiones con tiles especiales.
+    /// personaje, actualiza el <see cref="CollisionManager"/>, procesa la entrada
+    /// del jugador y comprueba colisiones con tiles especiales.
     /// <para>
     /// Tiles especiales gestionados:
     /// <list type="bullet">
     ///   <item><description>50 — al tocarlo se invoca <see cref="VidaManager.PerderVida"/>.</description></item>
-    ///   <item><description>99 — al tocarlo se limpia el <see cref="CollisionManager"/> y se carga <see cref="GameScene3"/>.</description></item>
-    ///   <item><description>100 — al tocarlo se desuscriben los eventos, se limpia el <see cref="CollisionManager"/> y se carga <see cref="WinScene"/>.</description></item>
+    ///   <item><description>99 — desuscribe eventos, limpia colisiones y carga <see cref="GameScene3"/>.</description></item>
+    ///   <item><description>100 — desuscribe eventos, limpia colisiones y carga <see cref="WinScene"/>.</description></item>
     /// </list>
     /// </para>
     /// </summary>
@@ -224,12 +228,12 @@ public class GameScene2 : IScene
     {
         KeyboardState tecladoActual = Keyboard.GetState();
 
-         if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
-            {
-                MediaPlayer.IsRepeating = true;
-                MediaPlayer.Volume = 0.5f;
-                MediaPlayer.Play(musica_nivel);
-            }
+        if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
+        {
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = 0.5f;
+            MediaPlayer.Play(musica_nivel);
+        }
 
         Rectangle playerRect = personaje.Rect;
         personaje.Collider.Position = new Vector2(playerRect.X, playerRect.Y);
@@ -273,6 +277,7 @@ public class GameScene2 : IScene
 
                 if (personaje.Rect.Intersects(tileMeta))
                 {
+                    // Se desuscriben antes de cambiar de escena para evitar referencias colgadas
                     VidaManager.OnPerderVida -= Respawn;
                     VidaManager.OnGameOver -= GameOver;
 
@@ -310,20 +315,19 @@ public class GameScene2 : IScene
 
     /// <summary>
     /// Dibuja todos los elementos visuales del nivel en el orden correcto:
-    /// Primero el fondo completo, seguido los tiles del tilemap (omitiendo los tiles especiales sin textura),
-    /// luego el personaje con su animación activa (normal, burbuja o salida de burbuja)
-    /// y finalmente el bounding box de depuración en rojo semitransparente.
+    /// fondo, tiles del tilemap (omitiendo los tiles especiales sin textura),
+    /// el personaje con su animación activa (burbuja, salida de burbuja o idle)
+    /// y el bounding box de depuración en rojo semitransparente.
     /// </summary>
     /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
     public void Draw(SpriteBatch spriteBatch)
     {
         int tileSize = 60;
         spriteBatch.Draw(_fondo, new Rectangle(0, 0, 1280, 720), Color.White);
-        
+
         foreach (var item in tilemap)
         {
-            if (item.Value == 99 || item.Value == 50 || item.Value == 100 || item.Value==18) continue;
-
+            if (item.Value == 99 || item.Value == 50 || item.Value == 100 || item.Value == 18) continue;
             Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
@@ -358,7 +362,7 @@ public class GameScene2 : IScene
     /// Cada fila del CSV corresponde a una fila de tiles y cada valor separado
     /// por coma a una columna. Solo se almacenan los tiles con valor mayor que 0.
     /// </summary>
-    /// <param name="ruta">Ruta relativa al archivo CSV del nivel (p. ej. "Content/nivel2.csv").</param>
+    /// <param name="ruta">Ruta relativa al archivo CSV del nivel (p. ej. <c>"Content/nivel2.csv"</c>).</param>
     /// <returns>
     /// Diccionario donde la clave es la posición en cuadrícula <c>(columna, fila)</c>
     /// y el valor es el identificador numérico del tile. Devuelve un diccionario
@@ -383,12 +387,15 @@ public class GameScene2 : IScene
         }
         return resultado;
     }
+
     /// <summary>
-/// Aplica la posición guardada al personaje tras cargar el nivel.
-/// Se llama desde EscenaSeleccionada al continuar una partida.
-/// </summary>
-public void AplicarPosicionGuardada(float x, float y)
-{
-    personaje.position = new Vector2(x, y);
-}
+    /// Aplica una posición guardada directamente al personaje.
+    /// Se llama desde <see cref="EscenaSeleccionada"/> al continuar una partida guardada.
+    /// </summary>
+    /// <param name="x">Coordenada X donde se colocará el personaje.</param>
+    /// <param name="y">Coordenada Y donde se colocará el personaje.</param>
+    public void AplicarPosicionGuardada(float x, float y)
+    {
+        personaje.position = new Vector2(x, y);
+    }
 }

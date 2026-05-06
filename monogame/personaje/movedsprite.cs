@@ -327,7 +327,7 @@ namespace capybara
             position.X += velocity.X;
             ActualizarCollider();
 
-            if (HayColisionY())
+            if (HayColisionX())
             {
                 position.X = oldPosX;
                 ActualizarCollider();
@@ -375,6 +375,28 @@ namespace capybara
         /// <c>false</c> en caso contrario.
         /// </returns>
         private bool HayColisionY()
+        {
+            if (Collider == null) return false;
+            foreach (var col in CollisionManager.GetColliders())
+            {
+                if (col == Collider) continue;
+
+                if (CollisionManager.IgnorePlayerEnemyCollisions && col.Owner == "enemy")
+                    continue;
+
+                if (Collider.Intersects(col))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Comprueba si el <see cref="Collider"/> del jugador se solapa con algún
+        /// colisionador en el eje horizontal, excluyendo el propio collider y el enemigo
+        /// cuando el escudo está activo. Equivalente a <see cref="HayColisionY"/> pero
+        /// semánticamente separado para claridad en <see cref="AplicarFisicasYColisiones"/>.
+        /// </summary>
+        private bool HayColisionX()
         {
             if (Collider == null) return false;
             foreach (var col in CollisionManager.GetColliders())

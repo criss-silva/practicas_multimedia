@@ -246,7 +246,6 @@ public class GameScene3_M2 : IScene
                     (int)item.Key.Y * tileSize,
                     tileSize, tileSize);
 
-                // ¡PRIMERO comprobamos si el jugador toca la meta!
                 if (personaje.Rect.Intersects(tileWin))
                 {
                     // Limpieza obligatoria antes de cambiar de escena
@@ -254,34 +253,20 @@ public class GameScene3_M2 : IScene
                     VidaManager.OnGameOver -= GameOver;
                     CollisionManager.Clear();
 
-                    // SEGUNDO decidimos a qué pantalla vamos
-                    if (ModoJuego.EsSeleccionDeMundo) 
+                    if (ModoJuego.EsSeleccionDeMundo)
                     {
-                        // MODO SELECCIÓN: Vamos a la nueva pantalla de "Fin de Mundo"
-                        // Fíjate que usamos 'Content' (con mayúscula)
+                        // MODO SELECCIÓN: pantalla de "Fin de Mundo" (elegir mundo o salir)
                         var finMundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
                         finMundo.LoadContent();
                         _sceneManager.AddScene(finMundo);
                     }
                     else
                     {
-                        // MODO SECUENCIAL: Vamos al Mundo 2
-                        var mundo2 = new GameScene_M2(_sceneManager, Content, _graphicsDevice);
-                        mundo2.LoadContent();
-                        _sceneManager.AddScene(mundo2);
+                        // MODO SECUENCIAL: pantalla de victoria final del juego
+                        WinScene victoria = new WinScene(_sceneManager, Content, _graphicsDevice);
+                        victoria.LoadContent();
+                        _sceneManager.AddScene(victoria);
                     }
-                    return;
-                }
-
-                if (personaje.Rect.Intersects(tileWin))
-                {
-                    VidaManager.OnPerderVida -= Respawn;
-                    VidaManager.OnGameOver -= GameOver;
-
-                    CollisionManager.Clear();
-                    WinScene victoria = new WinScene(_sceneManager, Content, _graphicsDevice);
-                    victoria.LoadContent();
-                    _sceneManager.AddScene(victoria);
                     return;
                 }
             }
