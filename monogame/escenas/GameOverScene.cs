@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System;
 
 namespace capybara;
 
@@ -118,6 +119,10 @@ public class GameOverScene : IScene
     /// con un desplazamiento de +50 en X y -150 en Y.
     /// </summary>
     private Vector2 _posAnimacion;
+/// <summary>
+/// Tipo de la última escena activa antes de mostrar el game over
+/// </summary>
+    private System.Type _lastSceneType;
 
     /// <summary>
     /// Inicializa una nueva instancia de <see cref="GameOverScene"/>.
@@ -125,12 +130,14 @@ public class GameOverScene : IScene
     /// <param name="sm">Gestor de escenas del juego.</param>
     /// <param name="content">Gestor de contenido para la carga de assets.</param>
     /// <param name="gd">Dispositivo gráfico de MonoGame.</param>
-    public GameOverScene(SceneManager sm, ContentManager content, GraphicsDevice gd)
+    public GameOverScene(SceneManager sm, ContentManager content, GraphicsDevice gd, Type tipoEscena)
     {
         _sceneManager = sm;
         _content = content;
         _graphicsDevice = gd;
+        _lastSceneType = tipoEscena;
     }
+
 
     /// <summary>
     /// Carga todos los assets necesarios para la escena: textura de overlay,
@@ -215,20 +222,31 @@ public class GameOverScene : IScene
     /// resetea el <see cref="CollisionManager"/> y el <see cref="VidaManager"/>,
     /// y apila una nueva instancia de <see cref="GameScene"/> con el contenido cargado.
     /// </summary>
-    private void ReiniciarNivel()
+   
+        private void ReiniciarNivel()
     {
         while (_sceneManager.sceneaActual() is not MenuScene)
-        {
             _sceneManager.RemoveScene();
-        }
 
         CollisionManager.Clear();
         VidaManager.Resetear();
 
-        IScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);
-        nivel1.LoadContent();
-        _sceneManager.AddScene(nivel1);
+        IScene nuevaEscena;
+        if (_lastSceneType == typeof(GameScene_M2))
+        {
+            nuevaEscena = new GameScene_M2(_sceneManager, _content, _graphicsDevice);
+        }
+        else
+        {
+            nuevaEscena = new GameScene(_sceneManager, _content, _graphicsDevice);
+        }
+
+        nuevaEscena.LoadContent();
+        _sceneManager.AddScene(nuevaEscena);
     }
+
+
+    
 
     /// <summary>
     /// Regresa al menú principal eliminando todas las escenas de la pila

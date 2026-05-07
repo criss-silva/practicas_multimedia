@@ -385,7 +385,7 @@ public class GameScene3 : IScene
     SaveManager.BorrarSave(); 
 
     CollisionManager.Clear();
-    GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice);
+    GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice, this.GetType());
     gameOver.LoadContent();
     _sceneManager.AddScene(gameOver);
     }
