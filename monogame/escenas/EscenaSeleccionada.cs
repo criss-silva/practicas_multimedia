@@ -89,6 +89,10 @@ namespace capybara
         /// <param name="animacionfondo">
         /// Instancia de la animación de fondo compartida desde <see cref="MenuScene"/>.
         /// </param>
+        /// 
+        /// 
+        private Texture2D botonvolver;
+        private Rectangle rectvolver;
         public EscenaSeleccionada(SceneManager sm, ContentManager content, GraphicsDevice gd, AnimacionFondo animacionfondo)
         {
             _sceneManager = sm;
@@ -98,6 +102,8 @@ namespace capybara
 
             _rectStart = new Rectangle(720, 210, 400, 300);
             _rectContinue = new Rectangle(160, 210, 400, 300);
+            rectvolver = new Rectangle(440, 400, 400, 300);
+             
 
             _haySave = SaveManager.ExisteSave();
             _colorContinue = _haySave ? Color.Blue : Color.Gray;
@@ -113,6 +119,7 @@ namespace capybara
             _pixel.SetData(new[] { Color.White });
             startTexture = _content.Load<Texture2D>("boton_nuevo_juego");
             continueTexture = _content.Load<Texture2D>("boton_continuar");
+            botonvolver = _content.Load<Texture2D>("boton_menu");
         }
 
         /// <summary>
@@ -131,6 +138,11 @@ namespace capybara
             _animacionfondo.Update(gameTime);
             MouseState mouseActual = Mouse.GetState();
             Point mousePos = new Point(mouseActual.X, mouseActual.Y);
+            bool clic = mouseActual.LeftButton == ButtonState.Pressed
+                 && _mouseAnterior.LeftButton == ButtonState.Released;
+
+        if (clic)
+        {
 
             // --- Botón Nueva Partida ---
             if (_rectStart.Contains(mousePos))
@@ -171,6 +183,15 @@ namespace capybara
             {
                 _colorContinue = _haySave ? Color.Blue : Color.Gray;
             }
+            // --- Botón Volver al Menú ---
+
+             if (rectvolver.Contains(mousePos))
+            {
+                // Volver al menú principal
+                while (_sceneManager.sceneaActual() is not MenuScene)
+                    _sceneManager.RemoveScene();
+            }
+        }
 
             _mouseAnterior = mouseActual;
         }
@@ -181,9 +202,14 @@ namespace capybara
         /// <param name="spriteBatch">El <see cref="SpriteBatch"/> activo en el que se dibuja.</param>
         public void Draw(SpriteBatch spriteBatch)
         {
+
+            bool hoverStart = _rectStart.Contains(Mouse.GetState().Position);
+            bool hoverContinue = _rectContinue.Contains(Mouse.GetState().Position);
+            bool hoverVolver = rectvolver.Contains(Mouse.GetState().Position);
             _animacionfondo.Draw(spriteBatch, new Rectangle(0, 0, 1280, 720));
-            spriteBatch.Draw(startTexture, _rectStart, Color.White);
-            spriteBatch.Draw(continueTexture, _rectContinue, Color.White);
+            spriteBatch.Draw(startTexture, _rectStart, hoverStart ?Color.Gray : Color.White);
+            spriteBatch.Draw(continueTexture, _rectContinue, hoverContinue ? Color.Gray : Color.White);
+            spriteBatch.Draw(botonvolver, rectvolver, hoverVolver ? Color.Gray : Color.White);
         }
 
         /// <summary>

@@ -75,6 +75,12 @@ public class GameScene : IScene
     /// </summary>
     private Rectangle _rectPanel;
 
+    ///
+    /// <summary>   
+    /// texto del panel de instrucciones
+    /// </summary>
+    SpriteFont _fuenteInstrucciones;
+
     /// <summary>Referencia al gestor de escenas para poder apilar nuevas escenas.</summary>
     private SceneManager _sceneManager;
 
@@ -258,6 +264,9 @@ public class GameScene : IScene
         MediaPlayer.IsRepeating = true;
         MediaPlayer.Play(musica_nivel);
         MediaPlayer.Volume = 0.5f;
+
+        try { _fuenteInstrucciones = Content.Load<SpriteFont>("fuente"); }
+            catch { _fuenteInstrucciones = null; }
     }
 
     /// <summary>
@@ -442,6 +451,13 @@ public class GameScene : IScene
             spriteBatch.Draw(pixel, new Rectangle(0, 0, 1280, 720), Color.Black * 0.6f);
             if (_texturaPanel != null)
                 spriteBatch.Draw(_texturaPanel, _rectPanel, Color.White);
+                
+                
+                
+                
+                
+                DibujarTexto(spriteBatch, "Presiona Enter o Espacio para continuar", 1280, 720);
+                
         }
     }
 
@@ -518,4 +534,18 @@ public class GameScene : IScene
     {
         personaje.position = new Vector2(x, y);
     }
+
+
+    private void DibujarTexto(SpriteBatch sb, string texto, int w, int h)
+        {
+            if (_fuenteInstrucciones != null)
+            {
+                Vector2 tamTexto = _fuenteInstrucciones.MeasureString(texto);
+                Vector2 posTexto = new Vector2((w - tamTexto.X) / 2f, h - tamTexto.Y - 30f);
+                // Sombra
+                sb.DrawString(_fuenteInstrucciones, texto, posTexto + new Vector2(2, 2), Color.Black * 0.6f);
+                sb.DrawString(_fuenteInstrucciones, texto, posTexto, Color.White);
+            }
+           
+        }
 }

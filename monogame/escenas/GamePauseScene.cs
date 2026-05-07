@@ -59,6 +59,21 @@ internal class EscenaPausa : IScene
     /// que <see cref="_rectMenu"/> para mayor precisión de interacción.
     /// </summary>
     private Rectangle colMenu;
+/// <summary>
+/// Textura del botón de ajustes
+/// </summary>
+    private Rectangle colAjustes;
+
+    //<summary>
+    /// Textura del botón de ajustes 
+    /// </summary>
+
+    private Texture2D _texBotonAjustes;
+
+    /// <summary>
+    /// Rectángulo de posición y tamaño visual del botón de ajustes.
+    /// </summary>
+    private Rectangle _rectAjustes;
 
     /// <summary>
     /// Estado del ratón en el frame anterior. Se usa para detectar pulsaciones únicas
@@ -94,18 +109,21 @@ internal class EscenaPausa : IScene
 
         _texBotonReanudar = _content.Load<Texture2D>("boton_reanudar");
         _texBotonMenu = _content.Load<Texture2D>("boton_menu");
+        _texBotonAjustes = _content.Load<Texture2D>("boton_ajustes");
 
         int anchoBoton = 700;
         int altoBoton = 350;
         int xCentrada = 290;
 
-        _rectReanudar = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
-        _rectMenu = new Rectangle(xCentrada, 300, anchoBoton, altoBoton);
+        _rectReanudar = new Rectangle(xCentrada, 25, anchoBoton, altoBoton);
+        _rectMenu = new Rectangle(xCentrada, 225, anchoBoton, altoBoton);
+        _rectAjustes = new Rectangle(xCentrada, 425, anchoBoton, altoBoton);
 
         // El área de clic es más estrecha verticalmente para coincidir con la zona real del botón
-        int altoClic = 100;
+        int altoClic = 50;
         colReanudar = new Rectangle(xCentrada, _rectReanudar.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
         colMenu = new Rectangle(xCentrada, _rectMenu.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
+        colAjustes = new Rectangle(xCentrada, _rectAjustes.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
     }
 
     /// <summary>
@@ -145,6 +163,12 @@ internal class EscenaPausa : IScene
                 menu.LoadContent();
                 _sceneManager.AddScene(menu);
             }
+            else if (_rectAjustes.Intersects(ratonRect))
+            {
+                SettingsScene ajustes = new SettingsScene(_sceneManager, _content, _graphicsDevice);
+                ajustes.LoadContent();
+                _sceneManager.AddScene(ajustes);
+            }
         }
 
         _estadoRatonAnterior = estadoRatonActual;
@@ -166,8 +190,9 @@ internal class EscenaPausa : IScene
 
         Color colorReanudar = colReanudar.Intersects(puntaRaton) ? Color.Gray : Color.White;
         Color colorMenu = colMenu.Intersects(puntaRaton) ? Color.Gray : Color.White;
-
+        Color colorAjustes = colAjustes.Intersects(puntaRaton) ? Color.Gray : Color.White;
         spriteBatch.Draw(_texBotonReanudar, _rectReanudar, colorReanudar);
         spriteBatch.Draw(_texBotonMenu, _rectMenu, colorMenu);
+        spriteBatch.Draw(_texBotonAjustes, _rectAjustes, colorAjustes);
     }
 }

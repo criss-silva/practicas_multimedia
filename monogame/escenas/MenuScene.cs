@@ -20,10 +20,8 @@ namespace capybara
        /// fondo animado para la pantalla de inicio
        /// </summary>
         private AnimacionFondo _animacionFondo;   
-        /// <summary>Textura de fondo que ocupa toda la pantalla.</summary>
-        private Texture2D _fondo;
-
-        /// <summary>Textura con el nombre o logotipo del juego.</summary>
+       
+    /// <summary>Textura con el nombre o logotipo del juego.</summary>
         private Texture2D _nombreJuego;
 
         /// <summary>Textura del botón de jugar.</summary>
@@ -134,7 +132,7 @@ namespace capybara
             _nombreJuego = _content.Load<Texture2D>("nombre_juego");
             boton_jugar = _content.Load<Texture2D>("boton_jugar");
             boton_ajustes = _content.Load<Texture2D>("boton_ajustes");
-            _botonSeleccionMundos = _content.Load<Texture2D>("boton_seleccion_mundos");
+            _botonSeleccionMundos = _content.Load<Texture2D>("boton_mundos");
             musicaFondo = _content.Load<Song>("musica_menu");
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(musicaFondo);
