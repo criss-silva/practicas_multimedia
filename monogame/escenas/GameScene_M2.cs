@@ -127,6 +127,15 @@ public class GameScene_M2 : IScene
     /// </summary>
     private Song musica_nivel;
 
+
+
+
+    /// <summary>
+    /// Texto para las instrucciones
+    /// </summary> 
+
+    SpriteFont _fuenteInstrucciones;
+
     /// <summary>
     /// Inicializa una nueva instancia de <see cref="GameScene_M2"/>.
     /// Guarda las referencias necesarias, suscribe los callbacks a los eventos
@@ -250,6 +259,9 @@ public class GameScene_M2 : IScene
         pixel.SetData(new[] { Color.White });
 
         musica_nivel = Content.Load<Song>("musica_niveles");
+
+        try { _fuenteInstrucciones = Content.Load<SpriteFont>("fuente"); }
+            catch { _fuenteInstrucciones = null; }
     }
 
     /// <summary>
@@ -415,6 +427,7 @@ public class GameScene_M2 : IScene
             spriteBatch.Draw(pixel, new Rectangle(0, 0, 1280, 720), Color.Black * 0.6f);
             if (_texturaPanel != null)
                 spriteBatch.Draw(_texturaPanel, _rectPanel, Color.White);
+                DibujarTexto(spriteBatch, "Presiona Enter o Espacio para continuar", 1280, 720);
         }
     }
 
@@ -491,4 +504,19 @@ public class GameScene_M2 : IScene
     {
         personaje.position = new Vector2(x, y);
     }
+
+
+
+    private void DibujarTexto(SpriteBatch sb, string texto, int w, int h)
+        {
+            if (_fuenteInstrucciones != null)
+            {
+                Vector2 tamTexto = _fuenteInstrucciones.MeasureString(texto);
+                Vector2 posTexto = new Vector2((w - tamTexto.X) / 2f, h - tamTexto.Y - 30f);
+                // Sombra
+                sb.DrawString(_fuenteInstrucciones, texto, posTexto + new Vector2(2, 2), Color.Black * 0.6f);
+                sb.DrawString(_fuenteInstrucciones, texto, posTexto, Color.White);
+            }
+           
+        }
 }
