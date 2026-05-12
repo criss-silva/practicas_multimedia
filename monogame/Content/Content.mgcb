@@ -13,17 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin ../../../../Users/pauli/Downloads/boton_mundos.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:../../../../Users/pauli/Downloads/boton_mundos.png;boton_mundos.png
 
 #begin 1vida.png
 /importer:TextureImporter
@@ -157,6 +146,19 @@
 /processorParam:TextureFormat=Color
 /build:boton_menu.png
 
+
+#begin boton_mundos.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:boton_mundos.png
+
 #begin boton_nuevo_juego.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -193,17 +195,6 @@
 /processorParam:TextureFormat=Color
 /build:boton_restart.png
 
-#begin boton_seleccion_mundos.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:boton_seleccion_mundos.png
 
 #begin columna_basica.png
 /importer:TextureImporter
@@ -240,6 +231,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:enemigo1.png
+
+#begin enemigo2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:enemigo2.png
 
 #begin escena1.png
 /importer:TextureImporter

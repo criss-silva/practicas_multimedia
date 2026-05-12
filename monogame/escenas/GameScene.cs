@@ -391,10 +391,9 @@ public class GameScene : IScene
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
 
-        // Debug: área de detección de la columna en azul semitransparente
-        spriteBatch.Draw(pixel, columna.RectDeteccion, Color.Blue * 0.4f);
+       
 
-        // Debug: área de detección del checkpoint en azul semitransparente (solo si existe)
+     
         if (_checkpoint != null)
         {
             spriteBatch.Draw(pixel, new Rectangle(
@@ -442,8 +441,7 @@ public class GameScene : IScene
                 escala, personaje.efecto, 0f);
         }
 
-        // Debug: bounding box del personaje en rojo semitransparente
-        spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
+       
 
         // Panel de instrucciones con overlay oscuro (solo al inicio si no se han visto antes)
         if (_mostrarInstrucciones)

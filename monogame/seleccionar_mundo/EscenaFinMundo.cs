@@ -37,7 +37,7 @@ public class EscenaFinMundo : IScene
         _fondoLiso = new Texture2D(_graphicsDevice, 1, 1);
         _fondoLiso.SetData(new[] { new Color(10, 10, 10, 180) }); 
 
-        _texBotonMundos = _content.Load<Texture2D>("boton_seleccion_mundos");
+        _texBotonMundos = _content.Load<Texture2D>("boton_mundos");
         _texBotonMenu = _content.Load<Texture2D>("boton_menu");
 
         int anchoBoton = 700;

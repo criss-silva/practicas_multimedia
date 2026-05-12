@@ -375,7 +375,7 @@ public class GameScene_M2 : IScene
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
         }
 
-        spriteBatch.Draw(pixel, columna.RectDeteccion, Color.Blue * 0.4f);
+   
 
         if (_checkpoint != null)
         {
@@ -420,7 +420,7 @@ public class GameScene_M2 : IScene
                 escala, personaje.efecto, 0f);
         }
 
-        spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
+        
 
         if (_mostrarInstrucciones)
         {

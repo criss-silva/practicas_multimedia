@@ -137,7 +137,7 @@ public class GameScene3_M2 : IScene
         personaje = new MovedSprite(texturecapibara, new Vector2(100, 90), escala, velocidad, texAnimacion, texSalida,sonidoSalto, sonidoBurbuja, sonidoFueraburbuja);
         sprites = new List<Sprite> { personaje };
 
-        enemigo = new Enemigo(Content.Load<Texture2D>("enemigo1"), new Vector2(800, 250), 0.1f, 2);
+        enemigo = new Enemigo(Content.Load<Texture2D>("enemigo2"), new Vector2(600, 250), 0.07f, 3);
         enemigo.Collider.Owner = "enemy";
         enemigo.SetDebugMode(false);
 
@@ -320,7 +320,7 @@ public class GameScene3_M2 : IScene
                 escala, personaje.efecto, 0f);
         }
 
-        spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
+       
     }
 
     /// <summary>

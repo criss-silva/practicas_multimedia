@@ -354,7 +354,7 @@ public class GameScene2 : IScene
                 escala, personaje.efecto, 0f);
         }
 
-        spriteBatch.Draw(pixel, personaje.Rect, Color.Red * 0.5f);
+       
     }
 
     /// <summary>

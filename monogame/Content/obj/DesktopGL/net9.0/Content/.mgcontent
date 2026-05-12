@@ -4,7 +4,6 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>C:/juego/practicas_multimedia/monogame/Content/../../../../Users/pauli/Downloads/boton_mundos.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/1vida.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/2vidas.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/animacion_burbuja.png</File>
@@ -16,13 +15,14 @@
     <File>C:/juego/practicas_multimedia/monogame/Content/boton_continuar.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/boton_jugar.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/boton_menu.png</File>
+    <File>C:/juego/practicas_multimedia/monogame/Content/boton_mundos.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/boton_nuevo_juego.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/boton_reanudar.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/boton_restart.png</File>
-    <File>C:/juego/practicas_multimedia/monogame/Content/boton_seleccion_mundos.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/columna_basica.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/columna_spritesheet.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/enemigo1.png</File>
+    <File>C:/juego/practicas_multimedia/monogame/Content/enemigo2.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/escena1.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/escena2.png</File>
     <File>C:/juego/practicas_multimedia/monogame/Content/fondo_burbuja.png</File>
@@ -46,7 +46,7 @@
     <File>C:/juego/practicas_multimedia/monogame/Content/volumen.png</File>
   </SourceFiles>
   <DestFiles>
-    <File>boton_mundos.png</File>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
