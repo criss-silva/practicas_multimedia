@@ -170,9 +170,10 @@ public class GameOverScene : IScene
         _rectMenu = new Rectangle(1280 / 2 - (anchoM / 2), 350, anchoM, altoM);
 
         // Las áreas de clic son más estrechas verticalmente para mayor precisión
-        int altoClic = 80;
-        colReiniciar = new Rectangle(1280 / 2 - (anchoR / 2), _rectReiniciar.Y + (altoR / 2) - (altoClic / 2), anchoR, altoClic);
-        colMenu = new Rectangle(1280 / 2 - (anchoM / 2), _rectMenu.Y + (altoM / 2) - (altoClic / 2), anchoM, altoClic);
+        int altoClic  = 80;
+        int anchoClic = (int)(anchoR * 0.65f); // ~65% del ancho visual
+        colReiniciar = new Rectangle(1280 / 2 - (anchoClic / 2), _rectReiniciar.Y + (altoR / 2) - (altoClic / 2), anchoClic, altoClic);
+        colMenu      = new Rectangle(1280 / 2 - (anchoClic / 2), _rectMenu.Y      + (altoM / 2) - (altoClic / 2), anchoClic, altoClic);
     }
 
     /// <summary>
@@ -200,7 +201,7 @@ public class GameOverScene : IScene
         }
 
         // Hover y clic del botón de reinicio
-        if (_rectReiniciar.Contains(mousePos))
+        if (colReiniciar.Contains(mousePos))
         {
             _colorReiniciar = Color.Gray;
             if (mouse.LeftButton == ButtonState.Pressed) ReiniciarNivel();
@@ -208,7 +209,7 @@ public class GameOverScene : IScene
         else _colorReiniciar = Color.White;
 
         // Hover y clic del botón de menú
-        if (_rectMenu.Contains(mousePos))
+        if (colMenu.Contains(mousePos))
         {
             _colorMenu = Color.Gray;
             if (mouse.LeftButton == ButtonState.Pressed) IrAlMenu();

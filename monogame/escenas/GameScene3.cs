@@ -26,6 +26,9 @@ public class GameScene3 : IScene
     /// identificador numérico del tile en el tilesheet.
     /// </summary>
     private Dictionary<Vector2, int> tilemap;
+    // Añade estas dos líneas:
+private bool sobreMuerte = false;
+private bool sobreMeta = false;
 
     /// <summary>
     /// Lista de rectángulos fuente que mapean cada identificador de tile
@@ -51,6 +54,22 @@ public class GameScene3 : IScene
     /// (bounding boxes) mediante escalado del rectángulo destino.
     /// </summary>
     private Texture2D pixel;
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de muerte (50).
+    /// Solo se pierde la vida cuando supera <see cref="DelayMuerte"/>, dando
+    /// margen para saltar y esquivar.
+    /// </summary>
+    private float _timerMuerte = 0f;
+    private const float DelayMuerte = 0.6f;
+
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de meta/victoria (99/100).
+    /// Solo se transiciona cuando supera <see cref="DelayMeta"/>, evitando
+    /// transiciones accidentales por rozar el tile.
+    /// </summary>
+    private float _timerMeta = 0f;
+    private const float DelayMeta = 0.01f;
+
 
     /// <summary>
     /// Enemigo volador presente en el nivel 3. Persigue al jugador una vez
@@ -171,6 +190,8 @@ public class GameScene3 : IScene
             new Rectangle(160,128,32,32)  //22
         };
 
+        bool sobreMuerte = false;
+        bool sobreMeta   = false;
         int tileSize = 60;
         foreach (var item in tilemap)
         {
@@ -206,6 +227,7 @@ public class GameScene3 : IScene
     public void Update(GameTime gameTime)
     {
         KeyboardState tecladoActual = Keyboard.GetState();
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
         
          if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
@@ -237,10 +259,16 @@ public class GameScene3 : IScene
 
                 if (personaje.Rect.Intersects(tileKill))
                 {
-                    VidaManager.PerderVida();
-                    enemigo.ResetearPosicion();
-                    break;
-                }
+                    sobreMuerte = true;
+                    _timerMuerte += dt;
+                    if (_timerMuerte >= DelayMuerte)
+                    {
+                        _timerMuerte = 0f;
+                        VidaManager.PerderVida();
+                        enemigo.ResetearPosicion();
+                        break;
+                    }
+                } else { _timerMuerte = 0f; }
             }
 
             if (item.Value == 100)
@@ -252,26 +280,32 @@ public class GameScene3 : IScene
 
                 if (personaje.Rect.Intersects(tileWin))
                 {
-                    VidaManager.OnPerderVida -= Respawn;
-                    VidaManager.OnGameOver -= GameOver;
-                    CollisionManager.Clear();
+                    sobreMeta = true;
+                    _timerMeta += dt;
+                    if (_timerMeta >= DelayMeta)
+                    {
+                        _timerMeta = 0f;
+                        VidaManager.OnPerderVida -= Respawn;
+                        VidaManager.OnGameOver -= GameOver;
+                        CollisionManager.Clear();
 
-                    if (ModoJuego.EsSeleccionDeMundo)
-                    {
-                        // MODO SELECCIÓN: pantalla de fin de mundo
-                        var finMundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
-                        finMundo.LoadContent();
-                        _sceneManager.AddScene(finMundo);
+                        if (ModoJuego.EsSeleccionDeMundo)
+                        {
+                            // MODO SELECCIÓN: pantalla de fin de mundo
+                            var finMundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
+                            finMundo.LoadContent();
+                            _sceneManager.AddScene(finMundo);
+                        }
+                        else
+                        {
+                            // MODO SECUENCIAL: pantalla de carga antes del Mundo 2
+                            var carga = new EscenaCarga(_sceneManager, Content, _graphicsDevice);
+                            carga.LoadContent();
+                            _sceneManager.AddScene(carga);
+                        }
+                        return;
                     }
-                    else
-                    {
-                        // MODO SECUENCIAL: pantalla de carga antes del Mundo 2
-                        var carga = new EscenaCarga(_sceneManager, Content, _graphicsDevice);
-                        carga.LoadContent();
-                        _sceneManager.AddScene(carga);
-                    }
-                    return;
-                }
+                } else { _timerMeta = 0f; }
             }
         }
 
@@ -382,7 +416,9 @@ public class GameScene3 : IScene
     VidaManager.OnPerderVida -= Respawn;
     VidaManager.OnGameOver -= GameOver;
 
-    SaveManager.BorrarSave(); 
+    // El save NO se borra al morir: el jugador debe poder usar Continue
+    // desde el último checkpoint. BorrarSave solo se llama al iniciar
+    // partida nueva (NewGame) o al completar el juego (WinScene).
 
     CollisionManager.Clear();
     GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice, this.GetType());

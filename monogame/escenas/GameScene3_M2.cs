@@ -51,6 +51,22 @@ public class GameScene3_M2 : IScene
     /// (bounding boxes) mediante escalado del rectángulo destino.
     /// </summary>
     private Texture2D pixel;
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de muerte (50).
+    /// Solo se pierde la vida cuando supera <see cref="DelayMuerte"/>, dando
+    /// margen para saltar y esquivar.
+    /// </summary>
+    private float _timerMuerte = 0f;
+    private const float DelayMuerte = 0.6f;
+
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de meta/victoria (99/100).
+    /// Solo se transiciona cuando supera <see cref="DelayMeta"/>, evitando
+    /// transiciones accidentales por rozar el tile.
+    /// </summary>
+    private float _timerMeta = 0f;
+    private const float DelayMeta = 0.3f;
+
 
     /// <summary>
     /// Enemigo volador presente en el nivel 3. Persigue al jugador una vez
@@ -124,7 +140,7 @@ public class GameScene3_M2 : IScene
     {
         CollisionManager.Clear();
 
-        tilemap = CargarMapa("Content/nivel3.csv");
+        tilemap = CargarMapa("Content/nivel3_M2.csv");
         _fondo = Content.Load<Texture2D>("fondo_mundo_2");
         textureAtlas = Content.Load<Texture2D>("tilesheet_mundo2");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
@@ -173,7 +189,7 @@ public class GameScene3_M2 : IScene
         int tileSize = 60;
         foreach (var item in tilemap)
         {
-            if (item.Value != 18 && item.Value != 99 && item.Value != 50 && item.Value != 100)
+            if (item.Value!=18 && item.Value != 99 && item.Value != 50 && item.Value != 100)
             {
                 BoxCollider bloque = new BoxCollider(
                     new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize),
@@ -204,6 +220,7 @@ public class GameScene3_M2 : IScene
     public void Update(GameTime gameTime)
     {
         KeyboardState tecladoActual = Keyboard.GetState();
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
          if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
             {
@@ -222,6 +239,8 @@ public class GameScene3_M2 : IScene
         enemigo.Update(gameTime, personaje, tilemap);
 
         int tileSize = 60;
+        bool sobreMuerte = false;
+        bool sobreMeta   = false;
         foreach (var item in tilemap)
         {
             if (item.Value == 50)
@@ -233,9 +252,15 @@ public class GameScene3_M2 : IScene
 
                 if (personaje.Rect.Intersects(tileKill))
                 {
-                    VidaManager.PerderVida();
-                    enemigo.ResetearPosicion();
-                    break;
+                    sobreMuerte = true;
+                    _timerMuerte += dt;
+                    if (_timerMuerte >= DelayMuerte)
+                    {
+                        _timerMuerte = 0f;
+                        VidaManager.PerderVida();
+                        enemigo.ResetearPosicion();
+                        break;
+                    }
                 }
             }
 
@@ -248,29 +273,34 @@ public class GameScene3_M2 : IScene
 
                 if (personaje.Rect.Intersects(tileWin))
                 {
-                    // Limpieza obligatoria antes de cambiar de escena
-                    VidaManager.OnPerderVida -= Respawn;
-                    VidaManager.OnGameOver -= GameOver;
-                    CollisionManager.Clear();
+                    sobreMeta = true;
+                    _timerMeta += dt;
+                    if (_timerMeta >= DelayMeta)
+                    {
+                        _timerMeta = 0f;
+                        VidaManager.OnPerderVida -= Respawn;
+                        VidaManager.OnGameOver -= GameOver;
+                        CollisionManager.Clear();
 
-                    if (ModoJuego.EsSeleccionDeMundo)
-                    {
-                        // MODO SELECCIÓN: pantalla de "Fin de Mundo" (elegir mundo o salir)
-                        var finMundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
-                        finMundo.LoadContent();
-                        _sceneManager.AddScene(finMundo);
+                        if (ModoJuego.EsSeleccionDeMundo)
+                        {
+                            var finMundo = new EscenaFinMundo(_sceneManager, Content, _graphicsDevice);
+                            finMundo.LoadContent();
+                            _sceneManager.AddScene(finMundo);
+                        }
+                        else
+                        {
+                            WinScene victoria = new WinScene(_sceneManager, Content, _graphicsDevice);
+                            victoria.LoadContent();
+                            _sceneManager.AddScene(victoria);
+                        }
+                        return;
                     }
-                    else
-                    {
-                        // MODO SECUENCIAL: pantalla de victoria final del juego
-                        WinScene victoria = new WinScene(_sceneManager, Content, _graphicsDevice);
-                        victoria.LoadContent();
-                        _sceneManager.AddScene(victoria);
-                    }
-                    return;
                 }
             }
         }
+        if (!sobreMuerte) _timerMuerte = 0f;
+        if (!sobreMeta)   _timerMeta   = 0f;
 
         teclaanterior = tecladoActual;
     }
@@ -290,7 +320,7 @@ public class GameScene3_M2 : IScene
 
         foreach (var item in tilemap)
         {
-            if (item.Value == 99 || item.Value == 50 || item.Value == 100 || item.Value == 18) continue;
+            if (item.Value == 99 || item.Value == 50 || item.Value == 100) continue;
 
             Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);
@@ -378,7 +408,9 @@ public class GameScene3_M2 : IScene
     VidaManager.OnPerderVida -= Respawn;
     VidaManager.OnGameOver -= GameOver;
 
-    SaveManager.BorrarSave(); 
+    // El save NO se borra al morir: el jugador debe poder usar Continue
+    // desde el último checkpoint. BorrarSave solo se llama al iniciar
+    // partida nueva (NewGame) o al completar el juego (WinScene).
 
     CollisionManager.Clear();
     GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice, this.GetType());

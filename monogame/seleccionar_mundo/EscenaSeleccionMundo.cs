@@ -11,6 +11,9 @@ public class EscenaSeleccionMundo : IScene
     private ContentManager _content;
     private GraphicsDevice _graphicsDevice;
 
+    // En los campos de la clase, añade:
+    private Rectangle _colVolver;
+
         /// <summary>
        /// fondo animado para la pantalla de inicio
        /// </summary>
@@ -28,16 +31,25 @@ public class EscenaSeleccionMundo : IScene
     private SpriteFont _fuente;
  
     public EscenaSeleccionMundo(SceneManager sm, ContentManager content, GraphicsDevice gd, AnimacionFondo animacionfondo = null)
-    {
-        _sceneManager = sm;
-        _content = content;
-        _graphicsDevice = gd;
-        _animacionFondo = animacionfondo;
+{
+    _sceneManager = sm;       
+    _content = content;       
+    _graphicsDevice = gd;     
+    _animacionFondo = animacionfondo;
 
-        _rectMundo1 = new Rectangle(150, 180, 400, 300);
-        _rectMundo2 = new Rectangle(720, 180, 400, 300);
-        _rectVolver = new Rectangle(340, 450, 600, 300);
-    }
+    _rectMundo1 = new Rectangle(150, 180, 400, 300);
+    _rectMundo2 = new Rectangle(720, 180, 400, 300);
+
+    int anchoBotonV = 600;
+    int altoBotonV  = 300;
+    int xCentradaV  = 340;
+    int anchoClic   = 400;
+    int altoClic    = 100;
+    int xClicV      = xCentradaV + (anchoBotonV - anchoClic) / 2;
+
+    _rectVolver = new Rectangle(xCentradaV, 450, anchoBotonV, altoBotonV);
+    _colVolver  = new Rectangle(xClicV, _rectVolver.Y + (altoBotonV/2) - (altoClic/2), anchoClic, altoClic);
+}
 
     public void LoadContent()
     {
@@ -81,7 +93,7 @@ public class EscenaSeleccionMundo : IScene
                 nivel.LoadContent();
                 _sceneManager.AddScene(nivel);
             }
-            else if (_rectVolver.Contains(mousePos))
+            else if (_colVolver.Contains(mousePos))
             {
                 // Volver al menú principal
                 while (_sceneManager.sceneaActual() is not MenuScene)
@@ -120,9 +132,9 @@ public class EscenaSeleccionMundo : IScene
         spriteBatch.Draw(_pixel, new Rectangle(_rectMundo2.Right - 4, _rectMundo2.Y, 4, _rectMundo2.Height), Color.White);
 
         // Botón volver
-        bool hoverV = _rectVolver.Contains(Mouse.GetState().Position);
+        bool hoverV = _colVolver.Contains(Mouse.GetState().Position);
         spriteBatch.Draw(_texturaVolver, _rectVolver, hoverV ? Color.Gray : Color.White);
-    }
+  }
 
 
     private void DibujarTexto(SpriteBatch sb, string texto, int w, int h)

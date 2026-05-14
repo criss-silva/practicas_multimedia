@@ -34,6 +34,9 @@ public class WinScene : IScene
     /// <summary>Rectángulo de posición y tamaño del botón en pantalla.</summary>
     private Rectangle _rectBoton;
 
+    /// <summary>Área de clic activa del botón, más estrecha que el rect visual.</summary>
+    private Rectangle _colBoton;
+
     /// <summary>Color de tinte del botón. Cambia a gris cuando el ratón pasa por encima.</summary>
     private Color _tinteBoton = Color.White;
 
@@ -91,11 +94,16 @@ public class WinScene : IScene
         _texturaBoton = _content.Load<Texture2D>("boton_menu");
 
         int anchoFinal = 600;
-        int altoFinal = 300;
+        int altoFinal  = 300;
+        int anchoClic  = 400;
+        int altoClic   = 100;
         int posX = (1280 / 2) - (anchoFinal / 2);
         int posY = 300;
 
         _rectBoton = new Rectangle(posX, posY, anchoFinal, altoFinal);
+        _colBoton  = new Rectangle(posX + (anchoFinal - anchoClic) / 2,
+                                   posY + (altoFinal  - altoClic)  / 2,
+                                   anchoClic, altoClic);
     }
 
     /// <summary>
@@ -122,7 +130,7 @@ public class WinScene : IScene
             _cronometro = 0f;
         }
 
-        if (_rectBoton.Contains(mousePosition))
+        if (_colBoton.Contains(mousePosition))
         {
             _tinteBoton = Color.Gray;
 

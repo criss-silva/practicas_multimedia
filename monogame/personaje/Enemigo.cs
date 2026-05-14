@@ -161,7 +161,7 @@ internal class Enemigo : ScaledSprite
             efecto = (dirX == -1) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             float diferenciaY = alturaObjetivo - this.position.Y;
             _velocity.Y = MathHelper.Clamp(diferenciaY * 0.08f, -3.2f, 3.2f);
-            MoverConFisicas(tilemap);
+            MoverConFisicas(tilemap, jugador.EnEstadoS);
         }
         else
         {
@@ -185,17 +185,27 @@ internal class Enemigo : ScaledSprite
     /// y se anula la velocidad correspondiente para evitar que el enemigo se quede atascado.
     /// </summary>
     /// <param name="tilemap">Mapa de tiles de la escena actual.</param>
-    private void MoverConFisicas(Dictionary<Vector2, int> tilemap)
+    private void MoverConFisicas(Dictionary<Vector2, int> tilemap, bool jugadorEnBurbuja = false)
     {
         float oldX = position.X;
         position.X += _velocity.X;
         SincronizarCollider();
-        if (TocandoBloque(tilemap)) { position.X = oldX; _velocity.X = 0; }
+        // Solo revertir si choca con un tile sólido del mapa.
+        // Si el jugador está en burbuja, ignorar su colisionador para no vibrar.
+        if (TocandoBloqueOEnemyCollider(tilemap, jugadorEnBurbuja))
+        {
+            position.X = oldX;
+            _velocity.X = 0;
+        }
 
         float oldY = position.Y;
         position.Y += _velocity.Y;
         SincronizarCollider();
-        if (TocandoBloque(tilemap)) { position.Y = oldY; _velocity.Y = 0; }
+        if (TocandoBloqueOEnemyCollider(tilemap, jugadorEnBurbuja))
+        {
+            position.Y = oldY;
+            _velocity.Y = 0;
+        }
     }
 
     /// <summary>
@@ -296,11 +306,15 @@ internal class Enemigo : ScaledSprite
     /// <param name="tilemap">Mapa de tiles de la escena actual.</param>
     /// <returns><c>true</c> si hay solapamiento con al menos un tile sólido.</returns>
     private bool TocandoBloque(Dictionary<Vector2, int> tilemap)
+        => TocandoBloqueOEnemyCollider(tilemap, false);
+
+    private bool TocandoBloqueOEnemyCollider(Dictionary<Vector2, int> tilemap, bool ignorarJugador)
     {
         Rectangle rEnemigo = new Rectangle(
             (int)Collider.Position.X, (int)Collider.Position.Y,
             Collider.Width, Collider.Height);
 
+        // Comprobar colisión con tiles sólidos del mapa
         foreach (var tile in tilemap)
         {
             if (tile.Value != 18 && tile.Value != 99)
@@ -310,6 +324,18 @@ internal class Enemigo : ScaledSprite
                     _tileSize, _tileSize);
                 if (rEnemigo.Intersects(rBloque)) return true;
             }
+        }
+
+        // Si el jugador está en burbuja, no tratarlo como pared sólida
+        if (ignorarJugador) return false;
+
+        // Comprobar colisión con otros colisionadores registrados (excluyendo el propio)
+        foreach (var col in CollisionManager.GetColliders())
+        {
+            if (col == Collider) continue;
+            if (col.Owner == "enemy") continue;
+            if (col.Owner == "player") continue; // el jugador se gestiona por DetectarDano, no por física
+            if (Collider.Intersects(col)) return true;
         }
         return false;
     }

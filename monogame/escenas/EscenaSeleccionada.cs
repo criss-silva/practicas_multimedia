@@ -93,6 +93,9 @@ namespace capybara
         /// 
         private Texture2D botonvolver;
         private Rectangle rectvolver;
+        private Rectangle _colStart;
+        private Rectangle _colContinue;
+        private Rectangle _colVolver;
         public EscenaSeleccionada(SceneManager sm, ContentManager content, GraphicsDevice gd, AnimacionFondo animacionfondo)
         {
             _sceneManager = sm;
@@ -100,13 +103,30 @@ namespace capybara
             _graphicsDevice = gd;
             _animacionfondo = animacionfondo;
 
-            _rectStart = new Rectangle(720, 210, 400, 300);
-            _rectContinue = new Rectangle(160, 210, 400, 300);
-            rectvolver = new Rectangle(440, 400, 400, 300);
+            int anchoBoton = 400;
+            int altoBoton  = 300;
+            int anchoClic  = 250;
+            int altoClic   = 100;
+
+            _rectStart    = new Rectangle(720, 210, anchoBoton, altoBoton);
+            _rectContinue = new Rectangle(160, 210, anchoBoton, altoBoton);
+            rectvolver    = new Rectangle(440, 400, anchoBoton, altoBoton);
+
+            int xClicStart    = _rectStart.X    + (anchoBoton - anchoClic) / 2;
+            int xClicContinue = _rectContinue.X + (anchoBoton - anchoClic) / 2;
+            int xClicVolver   = rectvolver.X    + (anchoBoton - anchoClic) / 2;
+
+            _colStart    = new Rectangle(xClicStart,    _rectStart.Y    + (altoBoton/2) - (altoClic/2), anchoClic, altoClic);
+            _colContinue = new Rectangle(xClicContinue, _rectContinue.Y + (altoBoton/2) - (altoClic/2), anchoClic, altoClic);
+            _colVolver   = new Rectangle(xClicVolver,   rectvolver.Y    + (altoBoton/2) - (altoClic/2), anchoClic, altoClic);
              
 
             _haySave = SaveManager.ExisteSave();
             _colorContinue = _haySave ? Color.Blue : Color.Gray;
+
+            // Inicializar con el estado actual para evitar clic fantasma en el primer frame.
+            // Sin esto, el clic de "Play" en MenuScene se filtra aquí y dispara ContinuarPartida().
+            _mouseAnterior = Mouse.GetState();
         }
 
         /// <summary>
@@ -139,59 +159,35 @@ namespace capybara
             MouseState mouseActual = Mouse.GetState();
             Point mousePos = new Point(mouseActual.X, mouseActual.Y);
             bool clic = mouseActual.LeftButton == ButtonState.Pressed
-                 && _mouseAnterior.LeftButton == ButtonState.Released;
+                     && _mouseAnterior.LeftButton == ButtonState.Released;
 
-        if (clic)
-        {
-
-            // --- Botón Nueva Partida ---
-            if (_rectStart.Contains(mousePos))
+            if (clic)
             {
-                _colorStart = Color.LightGreen;
-                if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
+                if (_colStart.Contains(mousePos))
                 {
+                    // --- Botón Nueva Partida ---
                     ModoJuego.EsSeleccionDeMundo = false;
                     SaveManager.BorrarSave();
                     CollisionManager.Clear();
-                    InstruccionesManager.Reset(); // Permite mostrar instrucciones al empezar nueva partida
+                    InstruccionesManager.Reset();
                     GameScene nivel1 = new GameScene(_sceneManager, _content, _graphicsDevice);
                     nivel1.LoadContent();
                     _sceneManager.AddScene(nivel1);
                     return;
                 }
-            }
-            else _colorStart = Color.Green;
-
-            // --- Botón Continuar Partida ---
-            if (_rectContinue.Contains(mousePos))
-            {
-                if (_haySave)
+                else if (_colContinue.Contains(mousePos) && _haySave)
                 {
-                    _colorContinue = Color.LightBlue;
-                    if (mouseActual.LeftButton == ButtonState.Pressed && _mouseAnterior.LeftButton == ButtonState.Released)
-                    {
-                        ContinuarPartida();
-                    }
+                    // --- Botón Continuar Partida ---
+                    ContinuarPartida();
+                    return;
                 }
-                else
+                else if (_colVolver.Contains(mousePos))
                 {
-                    // Sin guardado el botón aparece desactivado visualmente
-                    _colorContinue = Color.DimGray;
+                    // --- Botón Volver al Menú ---
+                    while (_sceneManager.sceneaActual() is not MenuScene)
+                        _sceneManager.RemoveScene();
                 }
             }
-            else
-            {
-                _colorContinue = _haySave ? Color.Blue : Color.Gray;
-            }
-            // --- Botón Volver al Menú ---
-
-             if (rectvolver.Contains(mousePos))
-            {
-                // Volver al menú principal
-                while (_sceneManager.sceneaActual() is not MenuScene)
-                    _sceneManager.RemoveScene();
-            }
-        }
 
             _mouseAnterior = mouseActual;
         }
@@ -203,9 +199,9 @@ namespace capybara
         public void Draw(SpriteBatch spriteBatch)
         {
 
-            bool hoverStart = _rectStart.Contains(Mouse.GetState().Position);
-            bool hoverContinue = _rectContinue.Contains(Mouse.GetState().Position);
-            bool hoverVolver = rectvolver.Contains(Mouse.GetState().Position);
+            bool hoverStart = _colStart.Contains(Mouse.GetState().Position);
+            bool hoverContinue = _colContinue.Contains(Mouse.GetState().Position);
+            bool hoverVolver = _colVolver.Contains(Mouse.GetState().Position);
             _animacionfondo.Draw(spriteBatch, new Rectangle(0, 0, 1280, 720));
             spriteBatch.Draw(startTexture, _rectStart, hoverStart ?Color.Gray : Color.White);
             spriteBatch.Draw(continueTexture, _rectContinue, hoverContinue ? Color.Gray : Color.White);
