@@ -13,7 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-
 #begin 1vida.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -146,7 +145,6 @@
 /processorParam:TextureFormat=Color
 /build:boton_menu.png
 
-
 #begin boton_mundos.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -194,7 +192,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:boton_restart.png
-
 
 #begin columna_basica.png
 /importer:TextureImporter
@@ -323,7 +320,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Fuente.spritefont
 
-#begin instrucciones.jpg
+#begin instrucciones_.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -333,7 +330,8 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:instrucciones.jpg
+/build:instrucciones_.jpg
+
 
 #begin movimiento_capibara.png
 /importer:TextureImporter

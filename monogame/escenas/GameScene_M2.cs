@@ -191,7 +191,7 @@ public class GameScene_M2 : IScene
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
         Texture2D texAnimacion = Content.Load<Texture2D>("animacion_burbuja");
         Texture2D texSalida = Content.Load<Texture2D>("animacion_romper_burbuja");
-        _texturaPanel = Content.Load<Texture2D>("instrucciones");
+        _texturaPanel = Content.Load<Texture2D>("instrucciones_");
 
         // Si hay posición guardada (checkpoint o continuar partida), se usa; si no, posición inicial
         Vector2 posicionInicial;

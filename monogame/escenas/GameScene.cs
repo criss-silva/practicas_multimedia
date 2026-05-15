@@ -258,7 +258,7 @@ public class GameScene : IScene
         pixel = new Texture2D(_graphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        _texturaPanel = Content.Load<Texture2D>("instrucciones");
+        _texturaPanel = Content.Load<Texture2D>("instrucciones_");
 
         musica_nivel = Content.Load<Song>("musica_niveles");
         MediaPlayer.IsRepeating = true;
