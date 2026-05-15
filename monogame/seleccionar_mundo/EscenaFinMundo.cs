@@ -43,14 +43,16 @@ public class EscenaFinMundo : IScene
         int anchoBoton = 700;
         int altoBoton = 350;
         int xCentrada = 290;
-        _rectMundos = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
-        _rectMenu = new Rectangle(xCentrada, 300, anchoBoton, altoBoton);
-
         int altoClic = 100;
-        colMundos = new Rectangle(xCentrada, _rectMundos.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
-        colMenu = new Rectangle(xCentrada, _rectMenu.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
+        int anchoClic = 400;
+        int xClicCentrada = xCentrada + (anchoBoton - anchoClic) / 2;
 
-            
+        _rectMundos = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
+        _rectMenu   = new Rectangle(xCentrada, 300, anchoBoton, altoBoton);
+
+        colMundos = new Rectangle(xClicCentrada, _rectMundos.Y + (altoBoton/2) - (altoClic/2), anchoClic, altoClic);
+        colMenu   = new Rectangle(xClicCentrada, _rectMenu.Y   + (altoBoton/2) - (altoClic/2), anchoClic, altoClic);
+                    
 
     }
 

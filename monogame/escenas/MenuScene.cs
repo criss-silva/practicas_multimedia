@@ -99,19 +99,20 @@ namespace capybara
             int altoBoton = 300;
             int xCentrada = 330;
             int altoClic = 100;
-            
+            int anchoClic = 350;
+            int xClicCentrada = xCentrada + (anchoBoton - anchoClic) / 2; // centra el área de clic dentro del botón visual
 
-            // Botón Jugar — arriba
-            rect_jugar = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
-            col_jugar = new Rectangle(xCentrada, rect_jugar.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
-
-            // Botón Selección Mundos — en medio
+            // Primero los rects visuales
+            rect_jugar           = new Rectangle(xCentrada, 100, anchoBoton, altoBoton);
             _rectSeleccionMundos = new Rectangle(xCentrada, 270, anchoBoton, altoBoton);
-            _colSeleccionMundos = new Rectangle(xCentrada, _rectSeleccionMundos.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
+            rect_ajustes         = new Rectangle(xCentrada, 440, anchoBoton, altoBoton);
+            // Luego los cols de clic (ahora los rects ya tienen su valor correcto)
+            col_jugar           = new Rectangle(xClicCentrada, rect_jugar.Y           + (altoBoton/2) - (altoClic/2), anchoClic, altoClic);
+            _colSeleccionMundos = new Rectangle(xClicCentrada, _rectSeleccionMundos.Y + (altoBoton/2) - (altoClic/2), anchoClic, altoClic);
+            col_ajustes         = new Rectangle(xClicCentrada, rect_ajustes.Y         + (altoBoton/2) - (altoClic/2), anchoClic, altoClic);
 
-            // Botón Ajustes — abajo
-            rect_ajustes = new Rectangle(xCentrada, 440, anchoBoton, altoBoton);
-            col_ajustes = new Rectangle(xCentrada, rect_ajustes.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
+
+ 
 
             int anchoNombre = 800;
             int altoNombre = 400;
@@ -215,6 +216,7 @@ namespace capybara
 
             Color colorSalir = col_ajustes.Contains(Mouse.GetState().Position) ? Color.LightGray : Color.White;
             spriteBatch.Draw(boton_ajustes, rect_ajustes, colorSalir);
+        
         }
     }
 }

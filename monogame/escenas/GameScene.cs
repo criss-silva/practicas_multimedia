@@ -58,6 +58,22 @@ public class GameScene : IScene
     /// (bounding boxes) mediante escalado del rectángulo destino.
     /// </summary>
     private Texture2D pixel;
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de muerte (50).
+    /// Solo se pierde la vida cuando supera <see cref="DelayMuerte"/>, dando
+    /// margen para saltar y esquivar.
+    /// </summary>
+    private float _timerMuerte = 0f;
+    private const float DelayMuerte = 0.6f;
+
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de meta/victoria (99/100).
+    /// Solo se transiciona cuando supera <see cref="DelayMeta"/>, evitando
+    /// transiciones accidentales por rozar el tile.
+    /// </summary>
+    private float _timerMeta = 0f;
+    private const float DelayMeta = 0.3f;
+
 
     /// <summary>
     /// Controla si se debe mostrar el panel de instrucciones.
@@ -286,6 +302,7 @@ public class GameScene : IScene
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     public void Update(GameTime gameTime)
     {
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         _checkpoint?.Update(gameTime, personaje);
         KeyboardState tecladoActual = Keyboard.GetState();
 
@@ -331,6 +348,8 @@ public class GameScene : IScene
         foreach (var sprite in killist) sprites.Remove(sprite);
 
         // Comprobación de tiles especiales (muerte y meta)
+        bool sobreMuerte = false;
+        bool sobreMeta   = false;
         int tileSize = 60;
         foreach (var item in tilemap)
         {
@@ -343,9 +362,15 @@ public class GameScene : IScene
 
                 if (personaje.Rect.Intersects(tileKill))
                 {
-                    VidaManager.PerderVida();
-                    break;
-                }
+                    sobreMuerte = true;
+                    _timerMuerte += dt;
+                    if (_timerMuerte >= DelayMuerte)
+                    {
+                        _timerMuerte = 0f;
+                        VidaManager.PerderVida();
+                        break;
+                    }
+                } else { _timerMuerte = 0f; }
             }
 
             if (item.Value == 99)
@@ -514,7 +539,9 @@ public class GameScene : IScene
         VidaManager.OnPerderVida -= Respawn;
         VidaManager.OnGameOver -= GameOver;
 
-        SaveManager.BorrarSave();
+        // El save NO se borra al morir: el jugador debe poder usar Continue
+        // desde el último checkpoint. BorrarSave solo se llama al iniciar
+        // partida nueva (NewGame) o al completar el juego (WinScene).
 
         CollisionManager.Clear();
         GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice, this.GetType());

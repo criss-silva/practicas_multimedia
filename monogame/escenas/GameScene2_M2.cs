@@ -19,6 +19,9 @@ namespace capybara;
 /// </summary>
 public class GameScene2_M2 : IScene
 {
+    // Añade estas dos líneas:
+private bool sobreMuerte = false;
+private bool sobreMeta = false;
     /// <summary>Referencia al gestor de escenas para poder apilar nuevas escenas.</summary>
     private SceneManager _sceneManager;
 
@@ -53,6 +56,22 @@ public class GameScene2_M2 : IScene
     /// (bounding boxes) mediante escalado del rectángulo destino.
     /// </summary>
     private Texture2D pixel;
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de muerte (50).
+    /// Solo se pierde la vida cuando supera <see cref="DelayMuerte"/>, dando
+    /// margen para saltar y esquivar.
+    /// </summary>
+    private float _timerMuerte = 0f;
+    private const float DelayMuerte = 0.6f;
+
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de meta/victoria (99/100).
+    /// Solo se transiciona cuando supera <see cref="DelayMeta"/>, evitando
+    /// transiciones accidentales por rozar el tile.
+    /// </summary>
+    private float _timerMeta = 0f;
+    private const float DelayMeta = 0.3f;
+
 
     /// <summary>Factor de escala visual aplicado al sprite del personaje.</summary>
     private float escala = 1.0f;
@@ -121,7 +140,9 @@ public class GameScene2_M2 : IScene
     VidaManager.OnPerderVida -= Respawn;
     VidaManager.OnGameOver -= GameOver;
 
-    SaveManager.BorrarSave(); 
+    // El save NO se borra al morir: el jugador debe poder usar Continue
+    // desde el último checkpoint. BorrarSave solo se llama al iniciar
+    // partida nueva (NewGame) o al completar el juego (WinScene).
 
     CollisionManager.Clear();
     GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice, this.GetType());
@@ -145,7 +166,7 @@ public class GameScene2_M2 : IScene
     /// </summary>
     public void LoadContent()
     {
-        tilemap = CargarMapa("Content/nivel2.csv");
+        tilemap = CargarMapa("Content/nivel2_M2.csv");
         _fondo = Content.Load<Texture2D>("fondo_mundo_2");
         textureAtlas = Content.Load<Texture2D>("tilesheet_mundo2");
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
@@ -186,6 +207,8 @@ public class GameScene2_M2 : IScene
             new Rectangle(160,128,32,32)  //22
         };
 
+        bool sobreMuerte = false;
+        bool sobreMeta   = false;
         int tileSize = 60;
         foreach (var item in tilemap)
         {
@@ -222,7 +245,8 @@ public class GameScene2_M2 : IScene
     {
         KeyboardState tecladoActual = Keyboard.GetState();
 
-        
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
          if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
             {
                 MediaPlayer.IsRepeating = true;
@@ -258,9 +282,15 @@ public class GameScene2_M2 : IScene
 
                 if (personaje.Rect.Intersects(tileKill))
                 {
-                    VidaManager.PerderVida();
-                    break;
-                }
+                    sobreMuerte = true;
+                    _timerMuerte += dt;
+                    if (_timerMuerte >= DelayMuerte)
+                    {
+                        _timerMuerte = 0f;
+                        VidaManager.PerderVida();
+                        break;
+                    }
+                } else { _timerMuerte = 0f; }
             }
 
             if (item.Value == 99)
@@ -292,6 +322,11 @@ public class GameScene2_M2 : IScene
 
                 if (personaje.Rect.Intersects(tileWin))
                 {
+                    sobreMeta = true;
+                    _timerMeta += dt;
+                    if (_timerMeta >= DelayMeta)
+                    {
+                        _timerMeta = 0f;
                     VidaManager.OnPerderVida -= Respawn;
                     VidaManager.OnGameOver -= GameOver;
 
@@ -300,7 +335,8 @@ public class GameScene2_M2 : IScene
                     victoria.LoadContent();
                     _sceneManager.AddScene(victoria);
                     return;
-                }
+                    }
+                } else { _timerMeta = 0f; }
             }
         }
 
@@ -321,7 +357,7 @@ public class GameScene2_M2 : IScene
         
         foreach (var item in tilemap)
         {
-            if (item.Value == 99 || item.Value == 50 || item.Value == 100 || item.Value==18) continue;
+            if (item.Value == 99 || item.Value == 50 || item.Value == 100) continue;
 
             Rectangle dest = new((int)item.Key.X * tileSize, (int)item.Key.Y * tileSize, tileSize, tileSize);
             spriteBatch.Draw(textureAtlas, dest, texturas[item.Value - 1], Color.White);

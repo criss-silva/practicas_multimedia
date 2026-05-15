@@ -21,6 +21,9 @@ namespace capybara;
 /// </summary>
 public class GameScene2 : IScene
 {
+    // Añade estas dos líneas:
+private bool sobreMuerte = false;
+private bool sobreMeta = false;
     /// <summary>Referencia al gestor de escenas para poder apilar nuevas escenas.</summary>
     private SceneManager _sceneManager;
 
@@ -55,6 +58,22 @@ public class GameScene2 : IScene
     /// del personaje en rojo semitransparente.
     /// </summary>
     private Texture2D pixel;
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de muerte (50).
+    /// Solo se pierde la vida cuando supera <see cref="DelayMuerte"/>, dando
+    /// margen para saltar y esquivar.
+    /// </summary>
+    private float _timerMuerte = 0f;
+    private const float DelayMuerte = 0.6f;
+
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de meta/victoria (99/100).
+    /// Solo se transiciona cuando supera <see cref="DelayMeta"/>, evitando
+    /// transiciones accidentales por rozar el tile.
+    /// </summary>
+    private float _timerMeta = 0f;
+    private const float DelayMeta = 0.3f;
+
 
     /// <summary>Factor de escala visual aplicado al sprite del personaje.</summary>
     private float escala = 1.0f;
@@ -126,7 +145,9 @@ public class GameScene2 : IScene
         VidaManager.OnPerderVida -= Respawn;
         VidaManager.OnGameOver -= GameOver;
 
-        SaveManager.BorrarSave();
+        // El save NO se borra al morir: el jugador debe poder usar Continue
+        // desde el último checkpoint. BorrarSave solo se llama al iniciar
+        // partida nueva (NewGame) o al completar el juego (WinScene).
 
         CollisionManager.Clear();
         GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice, this.GetType());
@@ -192,10 +213,12 @@ public class GameScene2 : IScene
             new Rectangle(160,128,32,32)  //22
         };
 
+        bool sobreMuerte = false;
+        bool sobreMeta   = false;
         int tileSize = 60;
         foreach (var item in tilemap)
         {
-            if (item.Value != 18 && item.Value != 99 && item.Value != 50 && item.Value != 100)
+            if (item.Value !=18 && item.Value != 99 && item.Value != 50 && item.Value != 100)
             {
                 BoxCollider bloque = new BoxCollider(
                     new Vector2(item.Key.X * tileSize, item.Key.Y * tileSize),
@@ -226,6 +249,7 @@ public class GameScene2 : IScene
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     public void Update(GameTime gameTime)
     {
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         KeyboardState tecladoActual = Keyboard.GetState();
 
         if (MediaPlayer.State != MediaState.Playing || MediaPlayer.Queue.ActiveSong != musica_nivel)
@@ -263,9 +287,15 @@ public class GameScene2 : IScene
 
                 if (personaje.Rect.Intersects(tileKill))
                 {
-                    VidaManager.PerderVida();
-                    break;
-                }
+                    sobreMuerte = true;
+                    _timerMuerte += dt;
+                    if (_timerMuerte >= DelayMuerte)
+                    {
+                        _timerMuerte = 0f;
+                        VidaManager.PerderVida();
+                        break;
+                    }
+                } else { _timerMuerte = 0f; }
             }
 
             if (item.Value == 99)
@@ -277,7 +307,6 @@ public class GameScene2 : IScene
 
                 if (personaje.Rect.Intersects(tileMeta))
                 {
-                    // Se desuscriben antes de cambiar de escena para evitar referencias colgadas
                     VidaManager.OnPerderVida -= Respawn;
                     VidaManager.OnGameOver -= GameOver;
 
@@ -298,6 +327,11 @@ public class GameScene2 : IScene
 
                 if (personaje.Rect.Intersects(tileWin))
                 {
+                    sobreMeta = true;
+                    _timerMeta += dt;
+                    if (_timerMeta >= DelayMeta)
+                    {
+                        _timerMeta = 0f;
                     VidaManager.OnPerderVida -= Respawn;
                     VidaManager.OnGameOver -= GameOver;
 
@@ -306,7 +340,8 @@ public class GameScene2 : IScene
                     victoria.LoadContent();
                     _sceneManager.AddScene(victoria);
                     return;
-                }
+                    }
+                } else { _timerMeta = 0f; }
             }
         }
 

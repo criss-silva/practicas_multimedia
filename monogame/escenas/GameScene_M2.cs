@@ -20,6 +20,9 @@ namespace capybara;
 /// </summary>
 public class GameScene_M2 : IScene
 {
+    // Añade estas dos líneas:
+private bool sobreMuerte = false;
+private bool sobreMeta = false;
     /// <summary>
     /// Diccionario que representa el tilemap del nivel. La clave es la posición
     /// del tile en coordenadas de cuadrícula (columna, fila) y el valor es el
@@ -58,6 +61,22 @@ public class GameScene_M2 : IScene
     /// (bounding boxes) mediante escalado del rectángulo destino.
     /// </summary>
     private Texture2D pixel;
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de muerte (50).
+    /// Solo se pierde la vida cuando supera <see cref="DelayMuerte"/>, dando
+    /// margen para saltar y esquivar.
+    /// </summary>
+    private float _timerMuerte = 0f;
+    private const float DelayMuerte = 0.6f;
+
+    /// <summary>
+    /// Acumulador de tiempo que el jugador lleva sobre un tile de meta/victoria (99/100).
+    /// Solo se transiciona cuando supera <see cref="DelayMeta"/>, evitando
+    /// transiciones accidentales por rozar el tile.
+    /// </summary>
+    private float _timerMeta = 0f;
+    private const float DelayMeta = 0.3f;
+
 
     /// <summary>
     /// Controla si se debe mostrar el panel de instrucciones.
@@ -152,6 +171,7 @@ public class GameScene_M2 : IScene
     /// Coordenada Y de spawn opcional. Si se proporciona junto con <paramref name="posX"/>,
     /// el personaje aparecerá en esa posición en lugar de la posición inicial por defecto.
     /// </param>
+    
     public GameScene_M2(SceneManager sm, ContentManager content, GraphicsDevice gd, float? posX = null, float? posY = null)
     {
         _sceneManager = sm;
@@ -185,7 +205,7 @@ public class GameScene_M2 : IScene
     /// </summary>
     public void LoadContent()
     {
-        tilemap = CargarMapa("Content/nivel1.csv");
+        tilemap = CargarMapa("Content/nivel1_M2.csv");
         _fondo = Content.Load<Texture2D>("fondo_mundo_2");           // Fondo visual del Mundo 2
         textureAtlas = Content.Load<Texture2D>("tilesheet_mundo2");  // Tilesheet visual del Mundo 2
         Texture2D texturecapibara = Content.Load<Texture2D>("personaje_basico");
@@ -237,6 +257,8 @@ public class GameScene_M2 : IScene
             new Rectangle(160,128,32,32)  //22
         };
 
+        bool sobreMuerte = false;
+        bool sobreMeta   = false;
         int tileSize = 60;
         foreach (var item in tilemap)
         {
@@ -280,6 +302,7 @@ public class GameScene_M2 : IScene
     /// <param name="gameTime">Información de tiempo del frame actual proporcionada por MonoGame.</param>
     public void Update(GameTime gameTime)
     {
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         _checkpoint?.Update(gameTime, personaje);
         KeyboardState tecladoActual = Keyboard.GetState();
 
@@ -330,9 +353,15 @@ public class GameScene_M2 : IScene
 
                 if (personaje.Rect.Intersects(tileKill))
                 {
-                    VidaManager.PerderVida();
-                    break;
-                }
+                    sobreMuerte = true;
+                    _timerMuerte += dt;
+                    if (_timerMuerte >= DelayMuerte)
+                    {
+                        _timerMuerte = 0f;
+                        VidaManager.PerderVida();
+                        break;
+                    }
+                } else { _timerMuerte = 0f; }
             }
 
             if (item.Value == 99)
@@ -345,7 +374,6 @@ public class GameScene_M2 : IScene
                 if (personaje.Rect.Intersects(tileMeta))
                 {
                     CollisionManager.Clear();
-                    // En el Mundo 2 el nivel siguiente es GameScene2_M2
                     GameScene2_M2 nivel2 = new GameScene2_M2(_sceneManager, Content, _graphicsDevice);
                     nivel2.LoadContent();
                     _sceneManager.AddScene(nivel2);
@@ -486,7 +514,9 @@ public class GameScene_M2 : IScene
         VidaManager.OnPerderVida -= Respawn;
         VidaManager.OnGameOver -= GameOver;
 
-        SaveManager.BorrarSave();
+        // El save NO se borra al morir: el jugador debe poder usar Continue
+        // desde el último checkpoint. BorrarSave solo se llama al iniciar
+        // partida nueva (NewGame) o al completar el juego (WinScene).
 
         CollisionManager.Clear();
         GameOverScene gameOver = new GameOverScene(_sceneManager, Content, _graphicsDevice, this.GetType());

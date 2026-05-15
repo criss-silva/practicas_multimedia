@@ -120,10 +120,12 @@ internal class EscenaPausa : IScene
         _rectAjustes = new Rectangle(xCentrada, 425, anchoBoton, altoBoton);
 
         // El área de clic es más estrecha verticalmente para coincidir con la zona real del botón
-        int altoClic = 50;
-        colReanudar = new Rectangle(xCentrada, _rectReanudar.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
-        colMenu = new Rectangle(xCentrada, _rectMenu.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
-        colAjustes = new Rectangle(xCentrada, _rectAjustes.Y + (altoBoton / 2) - (altoClic / 2), anchoBoton, altoClic);
+        int altoClic  = 100;
+        int anchoClic = 400;
+        int xClicCentrada = xCentrada + (anchoBoton - anchoClic) / 2;
+        colReanudar = new Rectangle(xClicCentrada, _rectReanudar.Y + (altoBoton / 2) - (altoClic / 2), anchoClic, altoClic);
+        colMenu     = new Rectangle(xClicCentrada, _rectMenu.Y     + (altoBoton / 2) - (altoClic / 2), anchoClic, altoClic);
+        colAjustes  = new Rectangle(xClicCentrada, _rectAjustes.Y  + (altoBoton / 2) - (altoClic / 2), anchoClic, altoClic);
     }
 
     /// <summary>
@@ -151,19 +153,19 @@ internal class EscenaPausa : IScene
 
         if (clicIzquierdo)
         {
-            if (_rectReanudar.Intersects(ratonRect))
+            if (colReanudar.Intersects(ratonRect))
             {
                 // Desapila esta escena de pausa, volviendo a la escena de juego subyacente
                 _sceneManager.RemoveScene();
             }
-            else if (_rectMenu.Intersects(ratonRect))
+            else if (colMenu.Intersects(ratonRect))
             {
                 // Apila el menú principal sobre la pausa; la escena de juego queda enterrada
                 MenuScene menu = new MenuScene(_sceneManager, _content, _graphicsDevice);
                 menu.LoadContent();
                 _sceneManager.AddScene(menu);
             }
-            else if (_rectAjustes.Intersects(ratonRect))
+            else if (colAjustes.Intersects(ratonRect))
             {
                 SettingsScene ajustes = new SettingsScene(_sceneManager, _content, _graphicsDevice);
                 ajustes.LoadContent();
